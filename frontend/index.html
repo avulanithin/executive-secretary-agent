@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Executive Dashboard</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+
+    <!-- Top Navigation -->
+    <header class="top-nav">
+        <h2>AI Executive Secretary</h2>
+        <button id="logoutBtn">Logout</button>
+    </header>
+
+    <!-- Main Dashboard -->
+    <div class="dashboard-container">
+
+        <!-- Emails -->
+        <section class="card">
+            <h3>Email Summaries</h3>
+            <ul id="emailList"></ul>
+        </section>
+
+        <!-- Tasks -->
+        <section class="card">
+            <h3>Tasks</h3>
+            <ul id="taskList"></ul>
+        </section>
+
+        <!-- Calendar -->
+        <section class="card">
+            <h3>Today's Schedule</h3>
+            <ul id="calendarList"></ul>
+        </section>
+
+    </div>
+
+    <!-- JS -->
+    <script src="js/dashboard.js"></script>
+</body>
+</html>
