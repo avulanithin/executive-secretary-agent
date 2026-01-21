@@ -7,205 +7,132 @@ from backend.models.user import User
 from datetime import datetime
 import logging
 import os
+import requests
+from urllib.parse import urlencode
 
 logger = logging.getLogger(__name__)
 
-auth_bp = Blueprint('auth', __name__)
+auth_bp = Blueprint("auth", __name__)
 
+GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token"
+GOOGLE_USERINFO_URL = "https://www.googleapis.com/oauth2/v2/userinfo"
 
-# -----------------------------
-# User Registration
-# -----------------------------
-@auth_bp.route('/register', methods=['POST'])
-def register():
-    """
-    User registration endpoint
-    
-    Request body:
-    {
-        "email": "user@example.com",
-        "password": "password123",
-        "full_name": "John Doe",
-        "role": "executive"
-    }
-    """
-    try:
-        data = request.get_json()
-        
-        # Validation
-        if not data.get('email') or not data.get('password') or not data.get('full_name'):
-            return jsonify({'error': 'Missing required fields'}), 400
-        
-        # Check if user exists
-        existing_user = User.query.filter_by(email=data['email']).first()
-        if existing_user:
-            return jsonify({'error': 'Email already registered'}), 409
-        
-        # Create new user
-        user = User(
-            email=data['email'],
-            full_name=data['full_name'],
-            role=data.get('role', 'executive')
-        )
-        user.set_password(data['password'])
-        
-        db.session.add(user)
-        db.session.commit()
-        
-        logger.info(f"New user registered: {user.email}")
-        
-        return jsonify({
-            'message': 'User registered successfully',
-            'user': user.to_dict()
-        }), 201
-    
-    except Exception as e:
-        db.session.rollback()
-        logger.error(f"Registration error: {str(e)}")
-        return jsonify({'error': str(e)}), 500
-
-
-# -----------------------------
-# User Login (Email/Password)
-# -----------------------------
-@auth_bp.route('/login', methods=['POST'])
-def login():
-    """
-    User login endpoint
-    
-    Request body:
-    {
-        "email": "user@example.com",
-        "password": "password123"
-    }
-    """
-    try:
-        data = request.get_json()
-        
-        if not data.get('email') or not data.get('password'):
-            return jsonify({'error': 'Missing email or password'}), 400
-        
-        # Find user
-        user = User.query.filter_by(email=data['email']).first()
-        
-        if not user or not user.check_password(data['password']):
-            return jsonify({'error': 'Invalid email or password'}), 401
-        
-        if not user.is_active:
-            return jsonify({'error': 'Account is inactive'}), 403
-        
-        # Update last login
-        user.last_login = datetime.utcnow()
-        db.session.commit()
-        
-        # Store user in session
-        session['user_id'] = user.id
-        session['user_email'] = user.email
-        
-        logger.info(f"User logged in: {user.email}")
-        
-        return jsonify({
-            'message': 'Login successful',
-            'token': f'session_{user.id}',  # Simple token for demo
-            'user': user.to_dict()
-        }), 200
-    
-    except Exception as e:
-        logger.error(f"Login error: {str(e)}")
-        return jsonify({'error': str(e)}), 500
-
-
-# -----------------------------
-# Get Current User
-# -----------------------------
-@auth_bp.route('/me', methods=['GET'])
-def get_current_user():
-    """
-    Get current authenticated user
-    """
-    try:
-        user_id = session.get('user_id')
-        
-        if not user_id:
-            return jsonify({'error': 'Not authenticated'}), 401
-        
-        user = User.query.get(user_id)
-        
-        if not user:
-            return jsonify({'error': 'User not found'}), 404
-        
-        return jsonify({'user': user.to_dict()}), 200
-    
-    except Exception as e:
-        logger.error(f"Get user error: {str(e)}")
-        return jsonify({'error': str(e)}), 500
-
+# Single source of truth
+FRONTEND_BASE_URL = os.getenv("FRONTEND_BASE_URL", "http://localhost:8000")
+GOOGLE_REDIRECT_URI = os.getenv(
+    "GOOGLE_REDIRECT_URI",
+    "http://localhost:5000/api/auth/google/callback",
+)
 
 # -----------------------------
 # Google OAuth - Get URL
 # -----------------------------
-@auth_bp.route('/google/url', methods=['GET'])
+@auth_bp.route("/google/url", methods=["GET"])
 def google_auth_url():
-    """
-    Get Google OAuth authorization URL
-    """
-    try:
-        client_id = os.getenv('GOOGLE_CLIENT_ID')
-        redirect_uri = os.getenv('GOOGLE_REDIRECT_URI', 'http://localhost:5000/api/auth/google/callback')
-        
-        if not client_id:
-            return jsonify({'error': 'Google OAuth not configured'}), 500
-        
-        auth_url = (
-            f"https://accounts.google.com/o/oauth2/v2/auth?"
-            f"client_id={client_id}&"
-            f"redirect_uri={redirect_uri}&"
-            f"response_type=code&"
-            f"scope=openid email profile "
-            f"https://www.googleapis.com/auth/gmail.readonly "
-            f"https://www.googleapis.com/auth/calendar&"
-            f"access_type=offline&"
-            f"prompt=consent"
-        )
-        
-        return jsonify({'url': auth_url}), 200
-    
-    except Exception as e:
-        logger.error(f"Google OAuth URL error: {str(e)}")
-        return jsonify({'error': str(e)}), 500
+    client_id = os.getenv("GOOGLE_CLIENT_ID")
+
+    if not client_id:
+        logger.error("GOOGLE_CLIENT_ID not set")
+        return jsonify({"error": "Google OAuth not configured"}), 500
+
+    scope = " ".join([
+        "openid",
+        "email",
+        "profile",
+        "https://www.googleapis.com/auth/gmail.readonly",
+    ])
+
+    params = {
+        "client_id": client_id,
+        "redirect_uri": GOOGLE_REDIRECT_URI,
+        "response_type": "code",
+        "scope": scope,
+        "access_type": "offline",
+        "prompt": "consent",
+    }
+
+    auth_url = "https://accounts.google.com/o/oauth2/v2/auth?" + urlencode(params)
+
+    return jsonify({"url": auth_url}), 200
 
 
 # -----------------------------
 # Google OAuth - Callback
 # -----------------------------
-@auth_bp.route('/google/callback', methods=['GET'])
+@auth_bp.route("/google/callback", methods=["GET"])
 def google_callback():
-    """
-    Handle Google OAuth callback
-    """
     try:
-        code = request.args.get('code')
-        
+        code = request.args.get("code")
         if not code:
-            return redirect('http://localhost:5000/frontend/login.html?error=no_code')
-        
-        # For now, just redirect to dashboard
-        # In full implementation, exchange code for tokens
-        
-        return redirect('http://localhost:5000/frontend/index.html?google_auth=success')
-    
-    except Exception as e:
-        logger.error(f"Google OAuth callback error: {str(e)}")
-        return redirect('http://localhost:5000/frontend/login.html?error=oauth_failed')
+            logger.error("No OAuth code received")
+            return redirect(f"{FRONTEND_BASE_URL}/login.html?error=no_code")
 
+        # Exchange code for tokens
+        token_response = requests.post(
+            GOOGLE_TOKEN_URL,
+            data={
+                "code": code,
+                "client_id": os.getenv("GOOGLE_CLIENT_ID"),
+                "client_secret": os.getenv("GOOGLE_CLIENT_SECRET"),
+                "redirect_uri": GOOGLE_REDIRECT_URI,
+                "grant_type": "authorization_code",
+            },
+            timeout=10,
+        )
 
-# -----------------------------
-# Logout
-# -----------------------------
-@auth_bp.route('/logout', methods=['POST'])
-def logout():
-    """
-    Logout user
-    """
-    session.clear()
-    return jsonify({'message': 'Logout successful'}), 200
+        if token_response.status_code != 200:
+            logger.error("Token exchange failed: %s", token_response.text)
+            return redirect(f"{FRONTEND_BASE_URL}/login.html?error=token_failed")
+
+        token_data = token_response.json()
+        access_token = token_data.get("access_token")
+        refresh_token = token_data.get("refresh_token")
+
+        if not access_token:
+            logger.error("No access token in response: %s", token_data)
+            return redirect(f"{FRONTEND_BASE_URL}/login.html?error=no_access_token")
+
+        # Fetch user info
+        userinfo_response = requests.get(
+            GOOGLE_USERINFO_URL,
+            headers={"Authorization": f"Bearer {access_token}"},
+            timeout=10,
+        )
+
+        if userinfo_response.status_code != 200:
+            logger.error("Failed to fetch user info: %s", userinfo_response.text)
+            return redirect(f"{FRONTEND_BASE_URL}/login.html?error=userinfo_failed")
+
+        userinfo = userinfo_response.json()
+        email = userinfo.get("email")
+
+        if not email:
+            logger.error("No email in userinfo: %s", userinfo)
+            return redirect(f"{FRONTEND_BASE_URL}/login.html?error=no_email")
+
+        # Create or update user
+        user = User.query.filter_by(email=email).first()
+        if not user:
+            user = User(
+                email=email,
+                full_name=userinfo.get("name", email),
+                role="executive",
+                is_active=True,
+                password_hash="GOOGLE_OAUTH",
+            )
+            db.session.add(user)
+
+        user.gmail_token = refresh_token
+        user.last_login = datetime.utcnow()
+        db.session.commit()
+
+        # Session
+        session["user_id"] = user.id
+        session["user_email"] = user.email
+
+        logger.info("Google OAuth success for %s", email)
+        return redirect(f"{FRONTEND_BASE_URL}/index.html?google_auth=success")
+
+    except Exception:
+        logger.exception("OAuth failure")
+        return redirect(f"{FRONTEND_BASE_URL}/login.html?error=oauth_exception")
