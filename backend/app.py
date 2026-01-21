@@ -45,13 +45,6 @@ def create_app(env_name="development"):
     init_extensions(app)
 
     # -----------------------------
-    # Create tables (DEV ONLY)
-    # -----------------------------
-    with app.app_context():
-        logger.debug("[app.py] Creating database tables (db.create_all)")
-        db.create_all()
-
-    # -----------------------------
     # Register blueprints (ONCE)
     # -----------------------------
     register_blueprints(app)
