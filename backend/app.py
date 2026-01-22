@@ -7,7 +7,7 @@ import logging
 logger = logging.getLogger("exec_secretary")
 
 
-def create_app():
+def create_app():   
     app = Flask(__name__, instance_relative_config=True)
 
     # -----------------------------
