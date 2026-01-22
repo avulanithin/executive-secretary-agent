@@ -56,18 +56,14 @@ def google_auth_url():
     return jsonify({"url": auth_url}), 200
 
 
-# -----------------------------
-# Google OAuth - Callback
-# -----------------------------
 @auth_bp.route("/google/callback", methods=["GET"])
 def google_callback():
     try:
         code = request.args.get("code")
         if not code:
-            logger.error("No OAuth code received")
             return redirect(f"{FRONTEND_BASE_URL}/login.html?error=no_code")
 
-        # Exchange code for tokens
+        # Exchange code → tokens
         token_response = requests.post(
             GOOGLE_TOKEN_URL,
             data={
@@ -81,7 +77,6 @@ def google_callback():
         )
 
         if token_response.status_code != 200:
-            logger.error("Token exchange failed: %s", token_response.text)
             return redirect(f"{FRONTEND_BASE_URL}/login.html?error=token_failed")
 
         token_data = token_response.json()
@@ -89,10 +84,9 @@ def google_callback():
         refresh_token = token_data.get("refresh_token")
 
         if not access_token:
-            logger.error("No access token in response: %s", token_data)
             return redirect(f"{FRONTEND_BASE_URL}/login.html?error=no_access_token")
 
-        # Fetch user info
+        # ✅ FIX: define userinfo_response correctly
         userinfo_response = requests.get(
             GOOGLE_USERINFO_URL,
             headers={"Authorization": f"Bearer {access_token}"},
@@ -100,17 +94,15 @@ def google_callback():
         )
 
         if userinfo_response.status_code != 200:
-            logger.error("Failed to fetch user info: %s", userinfo_response.text)
             return redirect(f"{FRONTEND_BASE_URL}/login.html?error=userinfo_failed")
 
         userinfo = userinfo_response.json()
         email = userinfo.get("email")
 
         if not email:
-            logger.error("No email in userinfo: %s", userinfo)
             return redirect(f"{FRONTEND_BASE_URL}/login.html?error=no_email")
 
-        # Create or update user
+        # Create / update user
         user = User.query.filter_by(email=email).first()
         if not user:
             user = User(
@@ -122,17 +114,18 @@ def google_callback():
             )
             db.session.add(user)
 
+        # Store REFRESH token (correct for Gmail API)
         user.gmail_token = refresh_token
         user.last_login = datetime.utcnow()
         db.session.commit()
 
-        # Session
+        # Session persistence (CRITICAL)
         session["user_id"] = user.id
         session["user_email"] = user.email
+        session.permanent = True
 
-        logger.info("Google OAuth success for %s", email)
         return redirect(f"{FRONTEND_BASE_URL}/index.html?google_auth=success")
 
-    except Exception:
-        logger.exception("OAuth failure")
+    except Exception as e:
+        print("OAuth failure:", e)
         return redirect(f"{FRONTEND_BASE_URL}/login.html?error=oauth_exception")

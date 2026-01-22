@@ -1,5 +1,5 @@
 // frontend/js/auth.js
-// Authentication logic – relies on config.js
+// SAFE authentication logic
 
 class AuthManager {
     constructor() {
@@ -9,6 +9,12 @@ class AuthManager {
 
     init() {
         console.log('[auth] AuthManager initialized');
+
+        // 🔒 SAFE logout binding
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', () => this.logout());
+        }
     }
 
     // -----------------------------
@@ -19,7 +25,8 @@ class AuthManager {
             console.log('[auth] Requesting Google OAuth URL...');
 
             const response = await fetch(
-                `${window.API_BASE}/api/auth/google/url`
+                `${window.API_BASE}/api/auth/google/url`,
+                { credentials: 'include' }
             );
 
             if (!response.ok) {
@@ -29,31 +36,21 @@ class AuthManager {
             const data = await response.json();
 
             if (!data.url) {
-                throw new Error('OAuth URL not returned by backend');
+                throw new Error('OAuth URL not returned');
             }
 
-            console.log('[auth] Redirecting to Google OAuth');
             window.location.href = data.url;
 
-        } catch (error) {
-            console.error('[auth] Google login failed:', error);
-            alert('Failed to start Google login. Check console.');
+        } catch (err) {
+            console.error('[auth] Google login failed:', err);
+            alert('Google login failed. See console.');
         }
     }
 
-    // -----------------------------
-    // Logout (frontend only for now)
-    // -----------------------------
     logout() {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        this.currentUser = null;
-
+        localStorage.clear();
         window.location.href = '/login.html';
     }
 }
 
-// --------------------------------------------------
-// Global instance (IMPORTANT)
-// --------------------------------------------------
 window.authManager = new AuthManager();

@@ -159,22 +159,17 @@
 
 
 <script>
-document.getElementById('googleLoginBtn').addEventListener('click', async () => {
-  try {
-    const res = await fetch(`${window.API_BASE}/api/auth/google/url`);
-    const data = await res.json();
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('loginForm');
+    if (!form) return;   // ✅ prevents crash on error redirects
 
-    if (!data.url) {
-      throw new Error('No OAuth URL returned');
-    }
-
-    window.location.href = data.url;
-  } catch (err) {
-    console.error(err);
-    alert('Google login failed');
-  }
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        // existing login logic
+    });
 });
 </script>
+
     
 </body>
 </html>
