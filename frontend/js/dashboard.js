@@ -4,6 +4,23 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /* -----------------------------
+   Time helpers (UTC → IST)
+------------------------------ */
+function formatToIST(utcString) {
+    if (!utcString) return "";
+
+    return new Date(utcString).toLocaleString("en-IN", {
+        timeZone: "Asia/Kolkata",
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true
+    });
+}
+
+/* -----------------------------
    Navigation (Sidebar switching)
 ------------------------------ */
 function setupNavigation() {
@@ -73,7 +90,7 @@ async function syncEmails() {
     try {
         const res = await fetch("http://localhost:5000/api/emails/sync", {
             method: "POST",
-            credentials: "include"   // 🔥 REQUIRED FOR FLASK SESSION
+            credentials: "include" // REQUIRED for Flask session
         });
 
         if (!res.ok) {
@@ -91,7 +108,9 @@ async function syncEmails() {
     }
 }
 
-
+/* -----------------------------
+   Email Renderer
+------------------------------ */
 function renderEmail(email) {
     return `
         <div class="email-item">
@@ -101,12 +120,19 @@ function renderEmail(email) {
                     ${email.urgency_level || "low"}
                 </span>
             </div>
+
             <div class="email-subject">
                 ${email.subject || "(No subject)"}
             </div>
+
             <div class="email-meta">
-                ${new Date(email.received_at).toLocaleString()}
+                ${formatToIST(email.received_at)}
             </div>
+
+            <details class="email-body">
+                <summary>View email</summary>
+                <pre>${email.body || "No content available"}</pre>
+            </details>
         </div>
     `;
 }

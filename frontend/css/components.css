@@ -411,10 +411,25 @@
 }
 
 .email-body {
-    line-height: 1.6;
-    max-height: 300px;
+    margin-top: 8px;
+}
+
+.email-body summary {
+    cursor: pointer;
+    font-weight: 500;
+    color: #4f46e5;
+}
+
+.email-body pre {
+    white-space: pre-wrap;
+    font-size: 0.85rem;
+    background: #f8f9fc;
+    padding: 8px;
+    border-radius: 6px;
+    max-height: 250px;
     overflow-y: auto;
 }
+
 
 .task-form {
     background: white;
