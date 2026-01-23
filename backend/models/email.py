@@ -7,76 +7,67 @@ import json
 
 
 class Email(db.Model):
-    __tablename__ = 'emails'
+    __tablename__ = "emails"
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
 
-    gmail_message_id = db.Column(db.String(255), unique=True, nullable=True)
-    thread_id = db.Column(db.String(255), nullable=True)
+    sender = db.Column(db.String(255))
+    subject = db.Column(db.Text)
+    body = db.Column(db.Text)
 
-    sender = db.Column(db.String(255), nullable=False)
-    subject = db.Column(db.Text, nullable=True)
-    body = db.Column(db.Text, nullable=True)
+    received_at = db.Column(db.DateTime)
+    processed_at = db.Column(db.DateTime)
+    processing_status = db.Column(db.String(50))
 
-    received_at = db.Column(
-        db.DateTime(timezone=True),
-        default=lambda: datetime.now(timezone.utc)
-    )
+    ai_summary = db.Column(db.Text)
+    urgency_level = db.Column(db.String(50))
+    category = db.Column(db.String(100))
+    ai_actions = db.Column(db.Text)
+    ai_deadline = db.Column(db.DateTime)
 
-    # AI processing lifecycle
-    processing_status = db.Column(
-        db.String(50),
-        default='pending'
-    )  # pending | processing | completed | failed
+    # ✅ NEW
+    decision_status = db.Column(db.String(20), default="pending")
+    decision_at = db.Column(db.DateTime)
 
-    processed_at = db.Column(db.DateTime, nullable=True)
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "sender": self.sender,
+            "subject": self.subject,
+            "body": self.body,
+            "received_at": self.received_at.isoformat() if self.received_at else None,
 
-    # -----------------------------
-    # AI-GENERATED INTELLIGENCE
-    # -----------------------------
-    ai_summary = db.Column(db.Text, nullable=True)
+            "ai_summary": self.ai_summary,
+            "urgency_level": self.urgency_level,
+            "category": self.category,
+            "processing_status": self.processing_status,
 
-    urgency_level = db.Column(
-        db.String(20),
-        nullable=True
-    )  # low | medium | high
+            "decision_status": self.decision_status,
+            "decision_at": self.decision_at.isoformat() if self.decision_at else None
+        }
 
-    category = db.Column(
-        db.String(50),
-        nullable=True
-    )  # meeting / task / finance / academic / etc.
-
-    ai_actions = db.Column(
-        db.Text,
-        nullable=True
-    )  # Stored as JSON string
-
-    ai_deadline = db.Column(
-        db.DateTime,
-        nullable=True
-    )
 
     # -----------------------------
     # SERIALIZATION
     # -----------------------------
-    def to_dict(self):
-        return {
-            'id': self.id,
-            'sender': self.sender,
-            'subject': self.subject,
-            'body': self.body,
-            'received_at': self.received_at.isoformat() if self.received_at else None,
+    # def to_dict(self):
+    #     return {
+    #         'id': self.id,
+    #         'sender': self.sender,
+    #         'subject': self.subject,
+    #         'body': self.body,
+    #         'received_at': self.received_at.isoformat() if self.received_at else None,
 
-            'processing_status': self.processing_status,
-            'processed_at': self.processed_at.isoformat() if self.processed_at else None,
+    #         'processing_status': self.processing_status,
+    #         'processed_at': self.processed_at.isoformat() if self.processed_at else None,
 
-            'ai_summary': self.ai_summary,
-            'urgency_level': self.urgency_level,
-            'category': self.category,
-            'ai_actions': self._parse_actions(),
-            'ai_deadline': self.ai_deadline.isoformat() if self.ai_deadline else None
-        }
+    #         'ai_summary': self.ai_summary,
+    #         'urgency_level': self.urgency_level,
+    #         'category': self.category,
+    #         'ai_actions': self._parse_actions(),
+    #         'ai_deadline': self.ai_deadline.isoformat() if self.ai_deadline else None
+    #     }
 
     # -----------------------------
     # HELPERS

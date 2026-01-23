@@ -78,25 +78,25 @@ async function loadEmails() {
     }
 }
 
-async function syncEmails() {
-    const btn = document.getElementById("syncEmailsBtn");
-    btn.disabled = true;
-    btn.textContent = "Syncing…";
+// async function syncEmails() {
+//     const btn = document.getElementById("syncEmailsBtn");
+//     btn.disabled = true;
+//     btn.textContent = "Syncing…";
 
-    try {
-        await fetch("http://localhost:5000/api/emails/sync", {
-            method: "POST",
-            credentials: "include"
-        });
-        await loadEmails();
-    } catch (err) {
-        console.error("Failed to sync emails", err);
-        alert("Failed to sync emails.");
-    } finally {
-        btn.disabled = false;
-        btn.textContent = "Sync Emails";
-    }
-}
+//     try {
+//         await fetch("http://localhost:5000/api/emails/sync", {
+//             method: "POST",
+//             credentials: "include"
+//         });
+//         await loadEmails();
+//     } catch (err) {
+//         console.error("Failed to sync emails", err);
+//         alert("Failed to sync emails.");
+//     } finally {
+//         btn.disabled = false;
+//         btn.textContent = "Sync Emails";
+//     }
+// }
 
 /* -----------------------------
    AI Processing
@@ -127,13 +127,15 @@ async function processEmailWithAI(emailId, btn) {
 ------------------------------ */
 function renderEmail(email) {
     const urgency = email.urgency_level || "low";
-    const actions = email.ai_actions || [];
+    const category = email.category || "—";
+    const aiReady = email.processing_status === "completed";
 
     return `
         <div class="email-item">
             <div class="email-header">
                 <strong>${email.sender}</strong>
-                <span class="urgency ${urgency}">
+
+                <span class="badge urgency ${urgency}">
                     ${urgency.toUpperCase()}
                 </span>
             </div>
@@ -143,7 +145,7 @@ function renderEmail(email) {
             </div>
 
             <div class="email-meta">
-                ${formatToIST(email.received_at)}
+                ${formatToIST(email.received_at)} · ${category}
             </div>
 
             <details class="email-body">
@@ -151,19 +153,34 @@ function renderEmail(email) {
                 <pre>${email.body || "No content available"}</pre>
             </details>
 
-            <div class="email-actions">
-                <button class="btn-secondary"
-                    onclick="processEmailWithAI(${email.id}, this)">
-                    ${email.processing_status === "completed"
-                        ? "Reprocess with AI"
-                        : "Process with AI"}
-                </button>
+            <div class="ai-section">
+                <h4>AI Summary</h4>
+                <p>
+                    ${aiReady
+                        ? (email.ai_summary || "No summary generated")
+                        : "<em>AI processing…</em>"}
+                </p>
             </div>
 
-            ${email.ai_summary ? renderAIResult(email) : ""}
+            <div class="email-actions">
+                <button
+                    class="btn-success"
+                    onclick="approveEmail(${email.id})"
+                >
+                    Approve
+                </button>
+
+                <button
+                    class="btn-danger"
+                    onclick="rejectEmail(${email.id})"
+                >
+                    Reject
+                </button>
+            </div>
         </div>
     `;
 }
+
 
 function renderAIResult(email) {
     const actions = email.ai_actions || [];
@@ -186,4 +203,26 @@ function renderAIResult(email) {
 function updateEmailCount(count) {
     const badge = document.getElementById("emailCount");
     if (badge) badge.textContent = count;
+}
+
+async function approveEmail(emailId) {
+    try {
+        await apiClient.post(`/emails/${emailId}/approve`);
+        alert("Email approved");
+        loadEmails();
+    } catch (err) {
+        console.error("Approve failed", err);
+        alert("Failed to approve email");
+    }
+}
+
+async function rejectEmail(emailId) {
+    try {
+        await apiClient.post(`/emails/${emailId}/reject`);
+        alert("Email rejected");
+        loadEmails();
+    } catch (err) {
+        console.error("Reject failed", err);
+        alert("Failed to reject email");
+    }
 }

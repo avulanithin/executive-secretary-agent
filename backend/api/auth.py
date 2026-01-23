@@ -9,6 +9,7 @@ import logging
 import os
 import requests
 from urllib.parse import urlencode
+# from backend.services.email_pipeline import run_email_pipeline
 
 logger = logging.getLogger(__name__)
 
@@ -54,6 +55,8 @@ def google_auth_url():
     auth_url = "https://accounts.google.com/o/oauth2/v2/auth?" + urlencode(params)
 
     return jsonify({"url": auth_url}), 200
+   
+    run_email_pipeline(current_user)
 
 
 @auth_bp.route("/google/callback", methods=["GET"])

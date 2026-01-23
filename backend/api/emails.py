@@ -8,6 +8,9 @@ from backend.models.user import User
 from backend.services.gmail_service import fetch_gmail_emails
 from backend.services.ai_email_service import AIEmailService
 from backend.database.db import db
+from datetime import datetime
+
+
 
 emails_bp = Blueprint("emails", __name__)
 logger = logging.getLogger(__name__)
@@ -16,7 +19,7 @@ logger = logging.getLogger(__name__)
 # -----------------------------
 # Get all emails (DB)
 # -----------------------------
-@emails_bp.route("/emails", methods=["GET"])
+@emails_bp.route("", methods=["GET"])
 def get_emails():
     emails = Email.query.order_by(Email.received_at.desc()).all()
     return jsonify([e.to_dict() for e in emails]), 200
@@ -110,3 +113,31 @@ def process_email_with_ai(email_id):
             "error": "AI processing failed",
             "details": str(e)
         }), 500
+
+@emails_bp.route("/emails/<int:email_id>/approve", methods=["POST"])
+def approve_email(email_id):
+    email = Email.query.get_or_404(email_id)
+
+    email.decision_status = "approved"
+    email.decision_at = datetime.utcnow()
+
+    db.session.commit()
+
+    return jsonify({
+        "message": "Email approved",
+        "email_id": email.id
+    }), 200
+
+@emails_bp.route("/emails/<int:email_id>/reject", methods=["POST"])
+def reject_email(email_id):
+    email = Email.query.get_or_404(email_id)
+
+    email.decision_status = "rejected"
+    email.decision_at = datetime.utcnow()
+
+    db.session.commit()
+
+    return jsonify({
+        "message": "Email rejected",
+        "email_id": email.id
+    }), 200
