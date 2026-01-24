@@ -532,3 +532,13 @@
         grid-template-columns: 1fr;
     }
 }
+
+[data-theme="light"] {
+    --text-primary: #000;
+    --text-secondary: #000;
+}
+
+[data-theme="dark"] {
+    --text-primary: #fff;
+    --text-secondary: #ccc;
+}

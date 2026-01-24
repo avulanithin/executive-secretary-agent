@@ -342,3 +342,71 @@ a:hover {
         min-width: auto;
     }
 }
+
+
+/* ============================= */
+/* Email Visibility Fix */
+/* ============================= */
+
+.email-item {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+.email-item h4,
+.email-item h5,
+.email-item p,
+.email-item span,
+.email-item div {
+    color: var(--text-primary);
+}
+
+.email-meta {
+    color: var(--text-secondary);
+}
+
+/* AI Summary text */
+.email-section p {
+    color: var(--text-primary);
+}
+
+
+/* ============================= */
+/* FORCE BLACK TEXT – EMAIL PAGE */
+/* ============================= */
+
+/* ================================= */
+/* FORCE ALL TEXT BLACK – EMAIL PAGE */
+/* ================================= */
+
+/* Entire Emails page */
+#emails,
+#emails * {
+    color: #000000 !important;
+}
+
+/* Sidebar text (Emails, Overview, Tasks, etc.) */
+.sidebar,
+.sidebar * {
+    color: #000000 !important;
+}
+
+/* Header text (top bar) */
+.header,
+.header * {
+    color: #000000 !important;
+}
+
+/* Muted text overrides */
+.email-meta,
+.subtitle,
+.text-secondary {
+    color: #000000 !important;
+}
+
+/* Status labels like LOW */
+.status,
+.priority,
+.badge {
+    color: #000000 !important;
+}

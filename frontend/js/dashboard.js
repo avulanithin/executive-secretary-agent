@@ -64,6 +64,8 @@ async function loadEmails() {
 
     try {
         const emails = await apiClient.get("/emails");
+ // ONLY if blueprint prefix is /api/emails
+
         updateEmailCount(emails.length);
 
         if (!emails.length) {
@@ -106,10 +108,10 @@ async function processEmailWithAI(emailId, btn) {
     btn.textContent = "Processing…";
 
     try {
-        const res = await fetch(
-            `http://localhost:5000/api/emails/${emailId}/process`,
-            { method: "POST" }
-        );
+        const res = await fetch(`/api/emails/${email.id}/process`, {
+            method: "POST",
+            credentials: "include"
+            });
 
         if (!res.ok) {
             throw new Error("AI processing failed");
@@ -128,7 +130,28 @@ async function processEmailWithAI(emailId, btn) {
 function renderEmail(email) {
     const urgency = email.urgency_level || "low";
     const category = email.category || "—";
-    const aiReady = email.processing_status === "completed";
+
+    let aiSummaryHtml = "";
+
+    switch (email.processing_status) {
+        case "completed":
+            aiSummaryHtml = email.ai_summary
+                ? email.ai_summary
+                : "No summary generated";
+            break;
+
+        case "failed":
+            aiSummaryHtml = "❌ AI processing failed";
+            break;
+
+        case "processing":
+            aiSummaryHtml = "⏳ AI processing…";
+            break;
+
+        case "pending":
+        default:
+            aiSummaryHtml = "⏸ Waiting for AI";
+    }
 
     return `
         <div class="email-item">
@@ -155,11 +178,7 @@ function renderEmail(email) {
 
             <div class="ai-section">
                 <h4>AI Summary</h4>
-                <p>
-                    ${aiReady
-                        ? (email.ai_summary || "No summary generated")
-                        : "<em>AI processing…</em>"}
-                </p>
+                <p>${aiSummaryHtml}</p>
             </div>
 
             <div class="email-actions">

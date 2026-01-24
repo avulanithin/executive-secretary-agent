@@ -20,3 +20,4 @@ def register_blueprints(app):
     app.register_blueprint(emails_bp, url_prefix="/api/emails")
 
 
+

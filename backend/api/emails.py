@@ -22,6 +22,33 @@ logger = logging.getLogger(__name__)
 @emails_bp.route("", methods=["GET"])
 def get_emails():
     emails = Email.query.order_by(Email.received_at.desc()).all()
+
+    for email in emails:
+        if email.processing_status == "pending":
+            try:
+                email.processing_status = "processing"
+                db.session.commit()
+
+                ai_result = AIEmailService.process_email(
+                    subject=email.subject or "",
+                    body=email.body or ""
+                )
+
+                email.ai_summary = ai_result["summary"]
+                email.urgency_level = ai_result["urgency"]
+                email.category = ai_result["category"]
+                email.ai_actions = json.dumps(ai_result["actions"])
+                email.ai_deadline = ai_result["deadline"]
+                email.processed_at = datetime.utcnow()
+                email.processing_status = "completed"
+
+                db.session.commit()
+
+            except Exception as e:
+                email.processing_status = "failed"
+                db.session.commit()
+                logger.exception("Auto AI processing failed")
+
     return jsonify([e.to_dict() for e in emails]), 200
 
 
