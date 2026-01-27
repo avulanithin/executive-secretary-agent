@@ -21,8 +21,10 @@ class User(db.Model):
     gmail_token = db.Column(db.Text, nullable=True)
     calendar_token = db.Column(db.Text, nullable=True)
 
+    # Preferences
     preferences = db.Column(db.Text, nullable=True)
 
+    # Status & timestamps
     is_active = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     last_login = db.Column(db.DateTime, nullable=True)
@@ -42,10 +44,16 @@ class User(db.Model):
             self.password_hash.encode("utf-8")
         )
 
+    # -----------------------------
+    # Serialization
+    # -----------------------------
     def to_dict(self):
         return {
             "id": self.id,
             "email": self.email,
             "full_name": self.full_name,
             "role": self.role,
+            "is_active": self.is_active,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "last_login": self.last_login.isoformat() if self.last_login else None,
         }

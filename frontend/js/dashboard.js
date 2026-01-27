@@ -90,25 +90,25 @@ async function loadEmails() {
 }
 
 
-// async function syncEmails() {
-//     const btn = document.getElementById("syncEmailsBtn");
-//     btn.disabled = true;
-//     btn.textContent = "Syncing…";
+async function syncEmails() {
+    const btn = document.getElementById("syncEmailsBtn");
+    btn.disabled = true;
+    btn.textContent = "Syncing…";
 
-//     try {
-//         await fetch("http://localhost:5000/api/emails/sync", {
-//             method: "POST",
-//             credentials: "include"
-//         });
-//         await loadEmails();
-//     } catch (err) {
-//         console.error("Failed to sync emails", err);
-//         alert("Failed to sync emails.");
-//     } finally {
-//         btn.disabled = false;
-//         btn.textContent = "Sync Emails";
-//     }
-// }
+    try {
+        await fetch("http://localhost:5000/api/emails/sync", {
+            method: "POST",
+            credentials: "include"
+        });
+        await loadEmails();
+    } catch (err) {
+        console.error("Failed to sync emails", err);
+        alert("Failed to sync emails.");
+    } finally {
+        btn.disabled = false;
+        btn.textContent = "Sync Emails";
+    }
+}
 
 /* -----------------------------
    AI Processing
