@@ -1,14 +1,16 @@
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE = "http://localhost:5000/api";
 
 class APIClient {
     constructor() {
-        this.baseURL = "http://localhost:5000/api";
+        this.baseURL = API_BASE;
     }
 
     async request(endpoint, options = {}) {
         const res = await fetch(this.baseURL + endpoint, {
             credentials: "include",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+                "Content-Type": "application/json"
+            },
             ...options
         });
 
@@ -29,6 +31,24 @@ class APIClient {
             body: JSON.stringify(data)
         });
     }
+
+    // ✅ APPROVAL APIs (MUST be INSIDE the class)
+    getPendingApprovals() {
+        return this.get("/approvals");
+    }
+
+    approveEmail(emailId) {
+        return this.post(`/approvals/${emailId}/approve`);
+    }
+
+    rejectEmail(emailId) {
+        return this.post(`/approvals/${emailId}/reject`);
+    }
+    completeTask(taskId) {
+        return this.post(`/tasks/${taskId}/complete`);
 }
 
+}
+
+// ✅ ONE global instance
 window.apiClient = new APIClient();

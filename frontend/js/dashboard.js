@@ -43,7 +43,12 @@ function setupNavigation() {
 
             if (section === "emails") {
                 loadEmails();
+
             }
+            if (section === "tasks") {
+                loadTasks();
+            }
+
         });
     });
 }

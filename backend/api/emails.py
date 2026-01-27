@@ -19,17 +19,14 @@ def get_emails():
     if not user_id:
         return jsonify([])
 
-    user = User.query.get(user_id)
-
-    # 🔥 ADD THIS LINE (YOU REMOVED IT EARLIER)
-    fetch_gmail_emails(user)
-
     emails = (
         Email.query
         .filter_by(user_id=user_id)
         .order_by(Email.received_at.desc())
         .all()
     )
+
+
 
     for email in emails:
         if email.processing_status == "pending":

@@ -25,6 +25,8 @@ class Task(db.Model):
     created_by_agent = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    
     
     def to_dict(self):
         """Convert task to dictionary"""
