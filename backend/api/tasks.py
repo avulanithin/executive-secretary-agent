@@ -5,6 +5,8 @@ from backend.database.db import db
 from backend.models.task import Task
 from backend.models.user import User
 from backend.services.calendar_service import create_calendar_event
+from backend.services.calendar_service import delete_calendar_event
+
 
 tasks_bp = Blueprint("tasks", __name__)
 
@@ -41,22 +43,18 @@ def get_tasks():
 @tasks_bp.route("/<int:task_id>/complete", methods=["POST"])
 def complete_task(task_id):
     user_id = session.get("user_id")
-
-    task = Task.query.filter_by(
-        id=task_id,
-        user_id=user_id
-    ).first_or_404()
+    task = Task.query.filter_by(id=task_id, user_id=user_id).first_or_404()
+    user = User.query.get(user_id)
 
     task.status = "completed"
+    task.actual_deadline = datetime.utcnow()
+
+    from backend.services.calendar_service import delete_calendar_event
+    delete_calendar_event(user, task)
+
     db.session.commit()
 
-    user = User.query.get(user_id)
-    link = create_calendar_event(user, task)
-
-    return jsonify({
-        "success": True,
-        "calendar_link": link
-    })
+    return jsonify({"success": True})
 
 
 # -----------------------------
@@ -108,3 +106,5 @@ def get_calendar_tasks():
         }
         for t in tasks
     ])
+
+

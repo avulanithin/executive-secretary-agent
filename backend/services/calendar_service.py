@@ -1,12 +1,8 @@
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from datetime import datetime, timedelta
-import pytz
 import os
 from backend.database.db import db
-
-IST = pytz.timezone("Asia/Kolkata")
-UTC = pytz.utc
 
 
 def create_calendar_event(user, task):
@@ -14,21 +10,13 @@ def create_calendar_event(user, task):
         print("❌ No calendar token")
         return None
 
-    # 🔒 Prevent duplicate events
+    # 🔒 Prevent duplicate calendar events
     if task.calendar_event_id:
         print("⚠️ Calendar event already exists")
         return None
 
-    # ✅ Ensure datetime exists
-    start_utc = task.suggested_deadline or datetime.utcnow() + timedelta(minutes=10)
-
-    # ✅ Make UTC aware
-    if start_utc.tzinfo is None:
-        start_utc = UTC.localize(start_utc)
-
-    # ✅ Convert to IST
-    start_ist = start_utc.astimezone(IST)
-    end_ist = start_ist + timedelta(minutes=30)
+    start_time = task.suggested_deadline or datetime.utcnow() + timedelta(minutes=10)
+    end_time = start_time + timedelta(minutes=30)
 
     creds = Credentials(
         token=None,
@@ -42,22 +30,14 @@ def create_calendar_event(user, task):
     service = build("calendar", "v3", credentials=creds)
 
     event = {
-        "summary": task.title,
+        "summary": task.title,                 # ✅ AI summary / subject
         "description": task.description or "",
-        "start": {
-            "dateTime": start_ist.isoformat(),
-            "timeZone": "Asia/Kolkata",
-        },
-        "end": {
-            "dateTime": end_ist.isoformat(),
-            "timeZone": "Asia/Kolkata",
-        },
+        "start": {"dateTime": start_time.isoformat(), "timeZone": "Asia/Kolkata"},
+        "end": {"dateTime": end_time.isoformat(), "timeZone": "Asia/Kolkata"},
         "reminders": {
             "useDefault": False,
-            "overrides": [
-                {"method": "popup", "minutes": 30}
-            ]
-        }
+            "overrides": [{"method": "popup", "minutes": 30}],
+        },
     }
 
     created = service.events().insert(
@@ -65,7 +45,34 @@ def create_calendar_event(user, task):
         body=event
     ).execute()
 
+    # 🔥 STORE EVENT ID
     task.calendar_event_id = created["id"]
     db.session.commit()
 
     return created.get("htmlLink")
+
+def delete_calendar_event(user, task):
+    if not user.calendar_token or not task.calendar_event_id:
+        return
+
+    creds = Credentials(
+        token=None,
+        refresh_token=user.calendar_token,
+        token_uri="https://oauth2.googleapis.com/token",
+        client_id=os.getenv("GOOGLE_CLIENT_ID"),
+        client_secret=os.getenv("GOOGLE_CLIENT_SECRET"),
+        scopes=["https://www.googleapis.com/auth/calendar"],
+    )
+
+    service = build("calendar", "v3", credentials=creds)
+
+    try:
+        service.events().delete(
+            calendarId="primary",
+            eventId=task.calendar_event_id
+        ).execute()
+        print("🗑️ Calendar event deleted")
+    except Exception as e:
+        print("⚠️ Calendar delete failed:", e)
+
+    task.calendar_event_id = None
