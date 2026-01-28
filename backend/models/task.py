@@ -11,20 +11,25 @@ class Task(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email_id = db.Column(db.Integer, db.ForeignKey("emails.id"), nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
-    
+
     title = db.Column(db.String(500), nullable=False)
     description = db.Column(db.Text)
-    
-    priority = db.Column(db.String(50), default="medium")  # low, medium, high
+
+    priority = db.Column(db.String(50), default="medium")
     status = db.Column(db.String(50), default="pending_approval")
-    
-    estimated_duration = db.Column(db.Integer)  # minutes
+
+    estimated_duration = db.Column(db.Integer)
     suggested_deadline = db.Column(db.DateTime)
     actual_deadline = db.Column(db.DateTime)
-    
+
+    calendar_event_id = db.Column(db.String(255), nullable=True)  # ✅ REQUIRED
+
     created_by_agent = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+
 
     
     

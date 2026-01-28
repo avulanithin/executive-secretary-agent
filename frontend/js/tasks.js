@@ -65,54 +65,61 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 async function loadTasks() {
+    const container = document.getElementById("allTasksList");
+    container.innerHTML = "<p>Loading tasks…</p>";
+
     try {
         const tasks = await apiClient.get("/tasks");
-        console.log("📦 TASKS FROM API:", tasks);
 
-        ALL_TASKS = tasks;
-        renderTasks(tasks);
-    } catch (err) {
-        console.error("❌ Failed to load tasks", err);
-    }
-}
+        if (!tasks.length) {
+            container.innerHTML = "<p>No tasks found</p>";
+            return;
+        }
 
-function renderTasks(tasks) {
-    const container = document.getElementById("allTasksList");
-    container.innerHTML = "";
+        container.innerHTML = "";
 
-    if (!tasks.length) {
-        container.innerHTML = "<p>No tasks found</p>";
-        return;
-    }
+        tasks.forEach(task => {
+            const div = document.createElement("div");
+            div.className = "task-item";
 
-    tasks.forEach(task => {
-        const div = document.createElement("div");
-        div.className = "task-item";
+            div.innerHTML = `
+                <strong>${task.title}</strong>
+                <span class="badge ${task.priority}">
+                    ${task.priority.toUpperCase()}
+                </span>
+                <p>Status: ${task.status}</p>
 
-        div.innerHTML = `
-            <div>
-                <strong>${task.title}</strong><br>
-                Priority: ${task.priority}<br>
-                Status: <span class="task-status">${task.status}</span>
-            </div>
-
-            ${
-                task.status !== "completed"
-                ? `<button onclick="markTaskCompleted(${task.id})">
+                ${
+                    task.status !== "completed"
+                    ? `<button onclick="markTaskCompleted(${task.id})">
                         Mark Completed
-                   </button>`
-                : `<span style="color: green;">✔ Completed</span>`
-            }
-        `;
+                       </button>`
+                    : `<span>✅ Completed</span>`
+                }
+            `;
 
-        container.appendChild(div);
-    });
+            container.appendChild(div);
+        });
+
+    } catch (err) {
+        console.error(err);
+        container.innerHTML = "<p>Error loading tasks</p>";
+    }
 }
+
+document.addEventListener("DOMContentLoaded", loadTasks);
+
+
+
+
 
 async function markTaskCompleted(taskId) {
     try {
         await apiClient.post(`/tasks/${taskId}/complete`);
         await loadTasks(); // refresh UI
+        loadCalendar(); // 🔥 THIS LINE IS IMPORTANT
+
+        
     } catch (err) {
         console.error("Failed to complete task", err);
         alert("Failed to mark task as completed");

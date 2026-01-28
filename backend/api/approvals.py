@@ -5,6 +5,9 @@ from backend.database.db import db
 from backend.models.email import Email
 from backend.models.task import Task
 
+from backend.services.calendar_service import create_calendar_event
+
+
 approvals_bp = Blueprint("approvals", __name__)
 
 
@@ -46,6 +49,8 @@ def approve_email(email_id):
 
     db.session.add(task)
     db.session.commit()
+    create_calendar_event(user, task)
+
 
     return jsonify({"status": "approved"})
 

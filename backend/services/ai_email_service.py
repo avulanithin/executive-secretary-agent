@@ -5,6 +5,19 @@ from groq import Groq
 
 
 class AIEmailService:
+
+    def process_email(self, email):
+        result = self._run_ai(
+            subject=email.subject or "",
+            body=email.body or ""
+        )
+
+        email.ai_summary = result["summary"]
+        email.urgency_level = result["urgency"]
+        email.category = result["category"]
+        email.ai_actions = json.dumps(result.get("actions", []))
+        email.ai_deadline = result.get("deadline")
+
     """
     Single responsibility:
     Convert email → structured intelligence
@@ -106,3 +119,20 @@ EMAIL BODY:
                 data["deadline"] = None
 
         return data
+    
+
+from backend.models.email import Email
+from backend.database.db import db
+
+def retry_failed_ai_emails():
+    failed = Email.query.filter_by(processing_status="failed").all()
+
+    for email in failed:
+        try:
+            process_email(email)
+            email.processing_status = "completed"
+        except Exception:
+            email.processing_status = "failed"
+
+    db.session.commit()
+

@@ -3,6 +3,7 @@ from backend.extensions import db, migrate, cors
 from backend.api import register_blueprints
 from backend.config import Config
 import logging
+
 from flask_cors import CORS
 
 import os
@@ -18,7 +19,12 @@ logger = logging.getLogger("exec_secretary")
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
 
-    CORS(app, supports_credentials=True)
+    CORS(
+    app,
+    supports_credentials=True,
+    origins=["http://localhost:8000"]
+)
+
 
     app.config.from_object(Config)
 

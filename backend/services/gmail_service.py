@@ -7,6 +7,11 @@ import os
 import base64
 from bs4 import BeautifulSoup
 import logging
+import base64
+import os
+from datetime import datetime, timedelta
+from google.oauth2.credentials import Credentials
+from googleapiclient.discovery import build
 
 logger = logging.getLogger(__name__)
 
@@ -42,10 +47,15 @@ def extract_body(payload):
     return ""
 
 
+import base64
+from datetime import datetime
+from google.oauth2.credentials import Credentials
+from googleapiclient.discovery import build
+
 def fetch_gmail_emails(user):
     if not user.gmail_token:
-        logger.warning("No gmail token for user %s", user.id)
-        return 0
+        print("❌ No Gmail token")
+        return []
 
     creds = Credentials(
         token=None,
@@ -58,17 +68,22 @@ def fetch_gmail_emails(user):
 
     service = build("gmail", "v1", credentials=creds)
 
-    # 🔥 IMPORTANT: force multiple recent emails
-    result = service.users().messages().list(
+    # ✅ DEFAULT: fetch last 48 hours if never synced
+    since = getattr(user, "last_gmail_sync", None) or (datetime.utcnow() - timedelta(days=2))
+
+    since_ts = int(since.timestamp() * 1000)
+
+    print("🕒 Fetching emails since:", since)
+
+    results = service.users().messages().list(
         userId="me",
-        maxResults=20,
-        includeSpamTrash=False,
+        maxResults=50
     ).execute()
 
-    messages = result.get("messages", [])
-    logger.info("📬 Gmail returned %s messages", len(messages))
+    messages = results.get("messages", [])
+    print(f"📥 Gmail API returned {len(messages)} messages")
 
-    created = 0
+    new_emails = []
 
     for msg in messages:
         msg_id = msg["id"]
@@ -76,35 +91,58 @@ def fetch_gmail_emails(user):
         if Email.query.filter_by(gmail_message_id=msg_id).first():
             continue
 
-        full = service.users().messages().get(
+        data = service.users().messages().get(
             userId="me",
             id=msg_id,
             format="full"
         ).execute()
 
-        headers = full.get("payload", {}).get("headers", [])
+        internal_date = int(data["internalDate"])
+        if internal_date < since_ts:
+            continue  # 🔥 THIS is the real filter
 
-        def h(name):
-            return next(
-                (x["value"] for x in headers if x["name"].lower() == name.lower()),
-                None
-            )
+        headers = data["payload"].get("headers", [])
+        subject = sender = ""
 
-        ts = int(full.get("internalDate", 0)) / 1000
+        for h in headers:
+            if h["name"] == "Subject":
+                subject = h["value"]
+            elif h["name"] == "From":
+                sender = h["value"]
+
+        # ✅ SAFE BODY EXTRACTION
+        def extract_text(payload):
+            if payload.get("mimeType") == "text/plain":
+                data = payload["body"].get("data")
+                if data:
+                    return base64.urlsafe_b64decode(
+                        data + "=" * (-len(data) % 4)
+                    ).decode("utf-8", errors="ignore")
+
+            for part in payload.get("parts", []):
+                text = extract_text(part)
+                if text:
+                    return text
+            return ""
+
+        body = extract_text(data["payload"])
 
         email = Email(
             user_id=user.id,
             gmail_message_id=msg_id,
-            sender=h("From"),
-            subject=h("Subject"),
-            body=extract_body(full.get("payload", {})),
-            received_at=datetime.utcfromtimestamp(ts),
-            processing_status="pending",
+            sender=sender,
+            subject=subject,
+            body=body,
+            received_at=datetime.utcfromtimestamp(internal_date / 1000),
+            processing_status="pending"
         )
 
         db.session.add(email)
-        created += 1
+        new_emails.append(email)
 
+    # ✅ UPDATE LAST SYNC TIME
+    user.last_gmail_sync = datetime.utcnow()
     db.session.commit()
-    logger.info("✅ Gmail sync complete | new emails inserted=%s", created)
-    return created
+
+    print(f"✅ Gmail sync complete | New emails added: {len(new_emails)}")
+    return new_emails

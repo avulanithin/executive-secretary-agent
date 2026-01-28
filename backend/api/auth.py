@@ -22,6 +22,7 @@ def google_auth_url():
         "email",
         "profile",
         "https://www.googleapis.com/auth/gmail.readonly",
+        "https://www.googleapis.com/auth/calendar",
     ])
 
     params = {
@@ -77,7 +78,12 @@ def google_callback():
     db.session.commit()
 
     # 🔥 SESSION SET
-    session["user_id"] = user.id
-    session.permanent = True
+    # 🔐 Save refresh token for BOTH Gmail & Calendar
+    user.gmail_token = refresh_token
+    user.calendar_token = refresh_token   # ✅ THIS IS THE FIX
+
+    user.last_login = datetime.utcnow()
+    db.session.commit()
+
 
     return redirect(f"{FRONTEND_BASE_URL}/index.html?google_auth=success")

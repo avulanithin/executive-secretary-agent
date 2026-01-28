@@ -1,14 +1,14 @@
 document.addEventListener("DOMContentLoaded", () => {
     setupNavigation();
     setupEmailActions();
+    loadEmails(); // 🔥 THIS IS IMPORTANT
 });
+
 
 /* -----------------------------
    Time helpers (UTC → IST)
 ------------------------------ */
 function formatToIST(utcString) {
-    if (!utcString) return "";
-
     return new Date(utcString).toLocaleString("en-IN", {
         timeZone: "Asia/Kolkata",
         day: "2-digit",
@@ -41,14 +41,8 @@ function setupNavigation() {
             const target = document.getElementById(section);
             if (target) target.classList.add("active");
 
-            if (section === "emails") {
-                loadEmails();
-
-            }
-            if (section === "tasks") {
-                loadTasks();
-            }
-
+            if (section === "emails") loadEmails();
+            if (section === "tasks") loadTasks();
         });
     });
 }
@@ -63,6 +57,9 @@ function setupEmailActions() {
     }
 }
 
+/* -----------------------------
+   Load Emails
+------------------------------ */
 async function loadEmails() {
     const container = document.getElementById("emailsList");
     container.innerHTML = "<p>Loading emails…</p>";
@@ -71,21 +68,19 @@ async function loadEmails() {
         const emails = await apiClient.get("/emails");
 
         console.log("📦 EMAILS FROM API:", emails);
-        console.log("📦 EMAIL COUNT:", emails.length);
-
         updateEmailCount(emails.length);
 
         if (!emails.length) {
-            container.innerHTML = `<div class="empty-state"><p>No emails found</p></div>`;
+            container.innerHTML =
+                `<div class="empty-state"><p>No emails found</p></div>`;
             return;
         }
 
         container.innerHTML = "";
-
         emails.forEach(email => {
-            const wrapper = document.createElement("div");
-            wrapper.innerHTML = renderEmail(email);
-            container.appendChild(wrapper.firstElementChild);
+            const div = document.createElement("div");
+            div.innerHTML = renderEmail(email);
+            container.appendChild(div.firstElementChild);
         });
 
     } catch (err) {
@@ -94,26 +89,26 @@ async function loadEmails() {
     }
 }
 
-
+/* -----------------------------
+   Sync Emails
+------------------------------ */
 async function syncEmails() {
     const btn = document.getElementById("syncEmailsBtn");
     btn.disabled = true;
     btn.textContent = "Syncing…";
 
     try {
-        await fetch("http://localhost:5000/api/emails/sync", {
-            method: "POST",
-            credentials: "include"
-        });
+        await apiClient.post("/emails/sync");
         await loadEmails();
     } catch (err) {
-        console.error("Failed to sync emails", err);
-        alert("Failed to sync emails.");
+        console.error(err);
+        alert("Failed to sync emails");
     } finally {
         btn.disabled = false;
         btn.textContent = "Sync Emails";
     }
 }
+
 
 /* -----------------------------
    AI Processing
@@ -123,16 +118,14 @@ async function processEmailWithAI(emailId, btn) {
     btn.textContent = "Processing…";
 
     try {
-        const res = await fetch(`/api/emails/${email.id}/process`, {
-                method: "POST",
-                credentials: "include"
-            });
+        const res = await fetch(`/api/emails/${emailId}/process`, {
+            method: "POST",
+            credentials: "include"
+        });
 
-        if (!res.ok) {
-            throw new Error("AI processing failed");
-            }
-
+        if (!res.ok) throw new Error("AI processing failed");
         await loadEmails();
+
     } catch (err) {
         console.error(err);
         alert("AI processing failed.");
@@ -140,39 +133,32 @@ async function processEmailWithAI(emailId, btn) {
 }
 
 /* -----------------------------
-   Email Renderer
+   Email Renderer (FIXED)
 ------------------------------ */
 function renderEmail(email) {
     const urgency = email.urgency_level || "low";
     const category = email.category || "—";
 
-    let aiSummaryHtml = "";
+    let aiSummaryHtml = "⏳ Processing…";
 
-    switch (email.processing_status) {
-        case "completed":
-            aiSummaryHtml = email.ai_summary
-                ? email.ai_summary
-                : "No summary generated";
-            break;
-
-        case "failed":
-            aiSummaryHtml = "❌ AI processing failed";
-            break;
-
-        case "processing":
-            aiSummaryHtml = "⏳ AI processing…";
-            break;
-
-        case "pending":
-        default:
-            aiSummaryHtml = "⏸ Waiting for AI";
+    if (email.processing_status === "completed") {
+        aiSummaryHtml = email.ai_summary || "No summary generated";
+    } 
+    else if (email.processing_status === "failed") {
+        aiSummaryHtml = "❌ AI processing failed";
     }
+    else if (
+        email.processing_status === "processing" &&
+        email.ai_summary
+    ) {
+        aiSummaryHtml = email.ai_summary;
+    }
+
 
     return `
         <div class="email-item">
             <div class="email-header">
                 <strong>${email.sender}</strong>
-
                 <span class="badge urgency ${urgency}">
                     ${urgency.toUpperCase()}
                 </span>
@@ -197,17 +183,13 @@ function renderEmail(email) {
             </div>
 
             <div class="email-actions">
-                <button
-                    class="btn-success"
-                    onclick="approveEmail(${email.id})"
-                >
+                <button class="btn-success"
+                    onclick="approveEmail(${email.id})">
                     Approve
                 </button>
 
-                <button
-                    class="btn-danger"
-                    onclick="rejectEmail(${email.id})"
-                >
+                <button class="btn-danger"
+                    onclick="rejectEmail(${email.id})">
                     Reject
                 </button>
             </div>
@@ -215,34 +197,42 @@ function renderEmail(email) {
     `;
 }
 
+/* -----------------------------
+   Tasks
+------------------------------ */
+function renderTask(task) {
+    let badge = "";
 
-function renderAIResult(email) {
-    const actions = email.ai_actions || [];
+    if (task.status === "completed") {
+        badge = `<span class="badge badge-completed">COMPLETED</span>`;
+    } else {
+        badge = `<span class="badge badge-approved">APPROVED</span>`;
+    }
 
     return `
-        <div class="ai-result">
-            <h4>AI Summary</h4>
-            <p>${email.ai_summary}</p>
+      <div class="task-item">
+        <strong>${task.title}</strong>
+        ${badge}
+        <p>Priority: ${task.priority}</p>
 
-            ${actions.length ? `
-                <h4>Action Items</h4>
-                <ul>
-                    ${actions.map(a => `<li>${a}</li>`).join("")}
-                </ul>
-            ` : ""}
-        </div>
+        ${
+          task.status !== "completed"
+            ? `<button onclick="markCompleted(${task.id})">
+                Mark Completed
+               </button>`
+            : ""
+        }
+      </div>
     `;
 }
 
-function updateEmailCount(count) {
-    const badge = document.getElementById("emailCount");
-    if (badge) badge.textContent = count;
-}
 
+/* -----------------------------
+   Actions
+------------------------------ */
 async function approveEmail(emailId) {
     try {
         await apiClient.post(`/emails/${emailId}/approve`);
-        alert("Email approved");
         loadEmails();
     } catch (err) {
         console.error("Approve failed", err);
@@ -253,10 +243,14 @@ async function approveEmail(emailId) {
 async function rejectEmail(emailId) {
     try {
         await apiClient.post(`/emails/${emailId}/reject`);
-        alert("Email rejected");
         loadEmails();
     } catch (err) {
         console.error("Reject failed", err);
         alert("Failed to reject email");
     }
+}
+
+function updateEmailCount(count) {
+    const badge = document.getElementById("emailCount");
+    if (badge) badge.textContent = count;
 }

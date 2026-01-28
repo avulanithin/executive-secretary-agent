@@ -15,3 +15,12 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 });
+
+// Auto refresh every 3 minutes
+setInterval(() => {
+    console.log("🔄 Auto-refreshing data");
+    loadEmails();
+    loadTasks();
+    loadCalendar();
+}, 180000); // 3 minutes
+

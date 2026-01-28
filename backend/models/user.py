@@ -28,6 +28,7 @@ class User(db.Model):
     is_active = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     last_login = db.Column(db.DateTime, nullable=True)
+    last_gmail_sync = db.Column(db.DateTime, nullable=True)
 
     # -----------------------------
     # Password helpers
