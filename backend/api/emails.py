@@ -139,6 +139,9 @@ def process_single_email(email_id):
 # -----------------------------
 # APPROVE EMAIL → TASK + CALENDAR
 # -----------------------------
+from backend.models.approval import Approval
+import json
+
 @emails_bp.route("/<int:email_id>/approve", methods=["POST"])
 def approve_email(email_id):
     user_id = session.get("user_id")
@@ -146,40 +149,31 @@ def approve_email(email_id):
         return jsonify({"error": "unauthorized"}), 401
 
     email = Email.query.get_or_404(email_id)
-    user = User.query.get_or_404(user_id)
 
-    # 🔥 Ensure summary exists
-    if not email.ai_summary:
-        try:
-            AIEmailService.process_email(email)
-        except Exception:
-            email.ai_summary = fallback_summary(email)
-            email.urgency_level = "low"
-            email.category = "info"
+    if email.decision_status == "approved":
+        return jsonify({"status": "already approved"})
 
-    task = Task(
-        user_id=user.id,
+    # Create approval record
+    approval = Approval(
+        user_id=user_id,
         email_id=email.id,
-        title=email.ai_summary or email.subject,
-        description=email.body,
-        priority=email.urgency_level or "medium",
-        suggested_deadline=email.ai_deadline or (datetime.utcnow() + timedelta(hours=2)),
-        status="pending"
+        confidence=0.75,
+        reasoning="AI detected a task-worthy email.",
+        original_task=json.dumps({
+            "title": email.ai_summary or email.subject,
+            "description": email.body,
+            "priority": email.urgency_level or "medium",
+            "deadline": email.ai_deadline.isoformat() if email.ai_deadline else None
+        })
     )
 
-    db.session.add(task)
-    db.session.flush()
+    email.decision_status = "pending"
 
-    # 📅 Calendar
-    from backend.services.calendar_service import create_calendar_event
-    create_calendar_event(user, task)
-
-    email.decision_status = "approved"
-    email.decision_at = datetime.utcnow()
-
+    db.session.add(approval)
     db.session.commit()
 
-    return jsonify({"success": True})
+    return jsonify({"status": "sent_to_approvals"})
+
 
 
 # -----------------------------

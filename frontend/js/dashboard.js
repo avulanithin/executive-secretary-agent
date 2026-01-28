@@ -170,13 +170,9 @@ function renderEmail(email) {
    Actions
 ------------------------------ */
 async function approveEmail(emailId) {
-    try {
-        await apiClient.post(`/emails/${emailId}/approve`);
-        loadEmails();
-    } catch (err) {
-        console.error("Approve failed", err);
-        alert("Failed to approve email");
-    }
+    await apiClient.post(`/emails/${emailId}/approve`);
+    Toast.success("Sent to approvals");
+    loadEmails();
 }
 
 async function rejectEmail(emailId) {

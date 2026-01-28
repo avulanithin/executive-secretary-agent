@@ -12,6 +12,9 @@
     <script src="js/dashboard.js"></script>
     <script src="/js/tasks.js"></script>
     <script src="js/calendar.js"></script>
+    <script src="js/approval.js"></script>
+
+    
 </head>
 <body>
     <div class="container">
@@ -159,10 +162,22 @@
                                     <polyline points="12 6 12 12 16 14"></polyline>
                                 </svg>
                             </div>
-                            <div class="stat-content">
-                                <h3 id="statPending">0</h3>
-                                <p>Pending Approvals</p>
+                            <!-- Pending Approvals Preview -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Pending Approvals</h3>
+                                <a href="approval.html" class="link">View All →</a>
                             </div>
+                            <div class="card-body">
+                                <div id="dashboardApprovals">
+                                    <div class="empty-state">
+                                        <h3>No pending approvals</h3>
+                                        <p>You're all caught up 🎉</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         </div>
 
                         <div class="stat-card">
