@@ -3,5 +3,5 @@ from backend.app import create_app
 app = create_app()
 
 if __name__ == "__main__":
-    print("🚀 Starting Executive Secretary Agent API...")
+    print(" Starting Executive Secretary Agent API...")
     app.run(host="0.0.0.0", port=5000, debug=True)
