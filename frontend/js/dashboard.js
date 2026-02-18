@@ -192,3 +192,20 @@ function updateEmailCount(count) {
     const statCard = document.getElementById("statEmails");
     if (statCard) statCard.textContent = count;
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+    const userMenu = document.querySelector(".user-menu");
+    const dropdown = document.getElementById("userDropdown");
+
+    if (userMenu && dropdown) {
+        userMenu.addEventListener("click", () => {
+            dropdown.classList.toggle("show");
+        });
+
+        document.addEventListener("click", (e) => {
+            if (!userMenu.contains(e.target)) {
+                dropdown.classList.remove("show");
+            }
+        });
+    }
+});

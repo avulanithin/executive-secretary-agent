@@ -54,3 +54,31 @@ class AuthManager {
 }
 
 window.authManager = new AuthManager();
+
+
+document.addEventListener("DOMContentLoaded", () => {
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", async (e) => {
+            e.preventDefault();
+
+            try {
+                // Call backend logout (if exists)
+                await fetch(`${API_BASE_URL}/auth/logout`, {
+                    method: "POST",
+                    credentials: "include"
+                });
+            } catch (err) {
+                console.warn("Backend logout failed, clearing client session");
+            }
+
+            // Clear client-side auth
+            localStorage.clear();
+            sessionStorage.clear();
+
+            // Redirect to login page
+            window.location.href = "login.html";
+        });
+    }
+});

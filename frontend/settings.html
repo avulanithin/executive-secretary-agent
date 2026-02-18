@@ -3,7 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Settings - Executive Secretary</title>
+    <title>Settings - Executive Secretary AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/dashboard.css">
     <link rel="stylesheet" href="css/components.css">
@@ -15,304 +18,132 @@
                 <h1 class="logo">Executive Secretary AI</h1>
             </div>
             <div class="header-right">
-                <a href="index.html" class="btn-secondary">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path d="M19 12H5M12 19l-7-7 7-7"/>
+                <button class="btn-icon" id="notificationBtn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
                     </svg>
-                    Back to Dashboard
-                </a>
+                    <span class="badge" id="notificationBadge">0</span>
+                </button>
+                <div class="user-menu">
+                    <div class="avatar">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                    </div>
+                    <span id="userName">Executive User</span>
+                </div>
             </div>
         </header>
 
         <div class="main-content">
             <aside class="sidebar">
                 <nav class="nav">
-                    <a href="#general" class="nav-item active" data-tab="general">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <a href="index.html" class="nav-item">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="14" width="7" height="7"></rect>
+                            <rect x="3" y="14" width="7" height="7"></rect>
+                        </svg>
+                        <span>Overview</span>
+                    </a>
+                    <a href="index.html#emails" class="nav-item">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                            <polyline points="22,6 12,13 2,6"></polyline>
+                        </svg>
+                        <span>Emails</span>
+                    </a>
+                    <a href="approval.html" class="nav-item">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                        <span>Approvals</span>
+                    </a>
+                    <a href="settings.html" class="nav-item active">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <circle cx="12" cy="12" r="3"></circle>
-                            <path d="M12 1v6m0 6v6M5.64 5.64l4.24 4.24m4.24 4.24l4.24 4.24M1 12h6m6 0h6M5.64 18.36l4.24-4.24m4.24-4.24l4.24-4.24"/>
+                            <path d="M12 1v6m0 6v6m8.66-15.66l-4.24 4.24M7.76 16.24l-4.24 4.24M23 12h-6m-6 0H1m20.66 8.66l-4.24-4.24M7.76 7.76L3.52 3.52"></path>
                         </svg>
-                        General
-                    </a>
-                    <a href="#integrations" class="nav-item" data-tab="integrations">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <circle cx="18" cy="5" r="3"></circle>
-                            <circle cx="6" cy="12" r="3"></circle>
-                            <circle cx="18" cy="19" r="3"></circle>
-                            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
-                            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
-                        </svg>
-                        Integrations
-                    </a>
-                    <a href="#notifications" class="nav-item" data-tab="notifications">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-                            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-                        </svg>
-                        Notifications
-                    </a>
-                    <a href="#ai" class="nav-item" data-tab="ai">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"/>
-                            <circle cx="12" cy="12" r="3"/>
-                        </svg>
-                        AI Preferences
-                    </a>
-                    <a href="#security" class="nav-item" data-tab="security">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                        </svg>
-                        Security
+                        <span>Settings</span>
                     </a>
                 </nav>
             </aside>
 
             <main class="content">
-                <!-- General Settings -->
-                <section id="general" class="content-section active">
-                    <div class="section-header">
-                        <h2>General Settings</h2>
+                <div class="section-header">
+                    <div>
+                        <h2>Settings</h2>
                         <p class="subtitle">Manage your account and preferences</p>
                     </div>
+                </div>
 
-                    <div class="card">
-                        <div class="card-header">
-                            <h3>Profile Information</h3>
-                        </div>
-                        <div class="card-body">
-                            <div class="form-group">
-                                <label>Full Name</label>
-                                <input type="text" id="fullName" class="input" placeholder="John Doe">
-                            </div>
-                            <div class="form-group">
-                                <label>Email Address</label>
-                                <input type="email" id="email" class="input" placeholder="john@company.com" disabled>
-                            </div>
-                            <div class="form-group">
-                                <label>Time Zone</label>
-                                <select id="timezone" class="select">
-                                    <option value="UTC">UTC</option>
-                                    <option value="America/New_York">Eastern Time (ET)</option>
-                                    <option value="America/Chicago">Central Time (CT)</option>
-                                    <option value="America/Denver">Mountain Time (MT)</option>
-                                    <option value="America/Los_Angeles">Pacific Time (PT)</option>
-                                </select>
-                            </div>
-                            <button class="btn-primary" id="saveProfileBtn">Save Changes</button>
-                        </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Account Information</h3>
                     </div>
-
-                    <div class="card">
-                        <div class="card-header">
-                            <h3>Working Hours</h3>
-                        </div>
-                        <div class="card-body">
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label>Start Time</label>
-                                    <input type="time" id="workStart" class="input" value="09:00">
-                                </div>
-                                <div class="form-group">
-                                    <label>End Time</label>
-                                    <input type="time" id="workEnd" class="input" value="17:00">
-                                </div>
+                    <div class="card-body">
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <strong>Email Address</strong>
+                                <p>user@company.com</p>
                             </div>
-                            <button class="btn-primary" id="saveWorkingHoursBtn">Save Working Hours</button>
                         </div>
-                    </div>
-                </section>
-
-                <!-- Integrations -->
-                <section id="integrations" class="content-section">
-                    <div class="section-header">
-                        <h2>Integrations</h2>
-                        <p class="subtitle">Connect your email and calendar services</p>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-header">
-                            <h3>Gmail Integration</h3>
-                        </div>
-                        <div class="card-body">
-                            <div class="integration-status">
-                                <div class="status-indicator" id="gmailStatus">
-                                    <span class="status-dot disconnected"></span>
-                                    <span>Not Connected</span>
-                                </div>
-                                <button class="btn-primary" id="connectGmailBtn">Connect Gmail</button>
-                            </div>
-                            <p class="help-text">Connect your Gmail account to enable email processing and task extraction.</p>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-header">
-                            <h3>Google Calendar Integration</h3>
-                        </div>
-                        <div class="card-body">
-                            <div class="integration-status">
-                                <div class="status-indicator" id="calendarStatus">
-                                    <span class="status-dot disconnected"></span>
-                                    <span>Not Connected</span>
-                                </div>
-                                <button class="btn-primary" id="connectCalendarBtn">Connect Calendar</button>
-                            </div>
-                            <p class="help-text">Connect Google Calendar to enable automatic event scheduling.</p>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Notifications -->
-                <section id="notifications" class="content-section">
-                    <div class="section-header">
-                        <h2>Notification Preferences</h2>
-                        <p class="subtitle">Customize how you receive updates</p>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-header">
-                            <h3>Email Notifications</h3>
-                        </div>
-                        <div class="card-body">
-                            <div class="setting-item">
-                                <div class="setting-info">
-                                    <strong>Daily Summary</strong>
-                                    <p>Receive a daily email summary of tasks and events</p>
-                                </div>
-                                <label class="toggle">
-                                    <input type="checkbox" id="dailySummary" checked>
-                                    <span class="toggle-slider"></span>
-                                </label>
-                            </div>
-                            <div class="setting-item">
-                                <div class="setting-info">
-                                    <strong>Task Reminders</strong>
-                                    <p>Get notified before task deadlines</p>
-                                </div>
-                                <label class="toggle">
-                                    <input type="checkbox" id="taskReminders" checked>
-                                    <span class="toggle-slider"></span>
-                                </label>
-                            </div>
-                            <div class="setting-item">
-                                <div class="setting-info">
-                                    <strong>Approval Requests</strong>
-                                    <p>Receive notifications when tasks need approval</p>
-                                </div>
-                                <label class="toggle">
-                                    <input type="checkbox" id="approvalNotifications" checked>
-                                    <span class="toggle-slider"></span>
-                                </label>
-                            </div>
-                            <button class="btn-primary" id="saveNotificationsBtn">Save Preferences</button>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- AI Preferences -->
-                <section id="ai" class="content-section">
-                    <div class="section-header">
-                        <h2>AI Agent Preferences</h2>
-                        <p class="subtitle">Configure how AI processes your emails</p>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-header">
-                            <h3>Processing Settings</h3>
-                        </div>
-                        <div class="card-body">
-                            <div class="form-group">
-                                <label>Auto-Process Frequency</label>
-                                <select id="processingFrequency" class="select">
-                                    <option value="5">Every 5 minutes</option>
-                                    <option value="15">Every 15 minutes</option>
-                                    <option value="30" selected>Every 30 minutes</option>
-                                    <option value="60">Every hour</option>
-                                </select>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Priority Detection Sensitivity</label>
-                                <select id="prioritySensitivity" class="select">
-                                    <option value="low">Low (fewer high-priority tasks)</option>
-                                    <option value="medium" selected>Medium (balanced)</option>
-                                    <option value="high">High (more high-priority tasks)</option>
-                                </select>
-                            </div>
-
-                            <div class="setting-item">
-                                <div class="setting-info">
-                                    <strong>Auto-Approve Low Confidence Tasks</strong>
-                                    <p>Automatically approve tasks with AI confidence below 70%</p>
-                                </div>
-                                <label class="toggle">
-                                    <input type="checkbox" id="autoApprove">
-                                    <span class="toggle-slider"></span>
-                                </label>
-                            </div>
-
-                            <button class="btn-primary" id="saveAIPreferencesBtn">Save AI Preferences</button>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-header">
-                            <h3>Priority Rules</h3>
-                        </div>
-                        <div class="card-body">
-                            <p class="help-text">Define keywords that should trigger high priority</p>
-                            <div class="tag-input-container">
-                                <div id="priorityKeywords" class="tag-list"></div>
-                                <input type="text" id="priorityKeywordInput" class="input" placeholder="Add keyword and press Enter">
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <strong>Account Type</strong>
+                                <p>Executive Premium</p>
                             </div>
                         </div>
                     </div>
-                </section>
+                </div>
 
-                <!-- Security -->
-                <section id="security" class="content-section">
-                    <div class="section-header">
-                        <h2>Security Settings</h2>
-                        <p class="subtitle">Manage your account security</p>
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Integrations</h3>
                     </div>
-
-                    <div class="card">
-                        <div class="card-header">
-                            <h3>Change Password</h3>
+                    <div class="card-body">
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <strong>Google Calendar</strong>
+                                <p>Sync your tasks with Google Calendar</p>
+                            </div>
+                            <button class="btn-secondary">Connect</button>
                         </div>
-                        <div class="card-body">
-                            <div class="form-group">
-                                <label>Current Password</label>
-                                <input type="password" id="currentPassword" class="input">
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <strong>Gmail</strong>
+                                <p>Import emails for AI processing</p>
                             </div>
-                            <div class="form-group">
-                                <label>New Password</label>
-                                <input type="password" id="newPassword" class="input">
-                            </div>
-                            <div class="form-group">
-                                <label>Confirm New Password</label>
-                                <input type="password" id="confirmPassword" class="input">
-                            </div>
-                            <button class="btn-primary" id="changePasswordBtn">Change Password</button>
+                            <button class="btn-secondary">Connect</button>
                         </div>
                     </div>
+                </div>
 
-                    <div class="card">
-                        <div class="card-header">
-                            <h3>API Access</h3>
-                        </div>
-                        <div class="card-body">
-                            <div class="form-group">
-                                <label>API Key</label>
-                                <div class="input-group">
-                                    <input type="password" id="apiKey" class="input" value="sk-xxxxxxxxxxxxx" readonly>
-                                    <button class="btn-secondary" id="regenerateApiKeyBtn">Regenerate</button>
-                                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Preferences</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <strong>Email Notifications</strong>
+                                <p>Receive notifications for new approvals</p>
                             </div>
+                            <button class="btn-secondary">Enable</button>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <strong>Auto-sync</strong>
+                                <p>Automatically sync emails every hour</p>
+                            </div>
+                            <button class="btn-secondary">Configure</button>
                         </div>
                     </div>
-                </section>
+                </div>
             </main>
         </div>
     </div>
@@ -322,55 +153,8 @@
         <div class="spinner"></div>
     </div>
 
+    <script src="js/config.js"></script>
     <script src="js/utils.js"></script>
-    <script src="js/api_client.js"></script>
     <script src="js/auth.js"></script>
-    <script>
-        // Tab switching
-        document.querySelectorAll('[data-tab]').forEach(tab => {
-            tab.addEventListener('click', (e) => {
-                e.preventDefault();
-                const targetId = tab.getAttribute('data-tab');
-                
-                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-                document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
-                
-                tab.classList.add('active');
-                document.getElementById(targetId).classList.add('active');
-            });
-        });
-
-        // Load user data
-        async function loadSettings() {
-            try {
-                const response = await apiClient.get('/settings');
-                if (response.settings) {
-                    document.getElementById('fullName').value = response.settings.fullName || '';
-                    document.getElementById('email').value = response.settings.email || '';
-                    document.getElementById('timezone').value = response.settings.timezone || 'UTC';
-                    document.getElementById('workStart').value = response.settings.workStart || '09:00';
-                    document.getElementById('workEnd').value = response.settings.workEnd || '17:00';
-                }
-            } catch (error) {
-                console.error('Failed to load settings:', error);
-            }
-        }
-
-        // Save handlers
-        document.getElementById('saveProfileBtn').addEventListener('click', async () => {
-            const settings = {
-                fullName: document.getElementById('fullName').value,
-                timezone: document.getElementById('timezone').value
-            };
-            try {
-                await apiClient.put('/settings/profile', settings);
-                showToast('Profile updated successfully', 'success');
-            } catch (error) {
-                showToast('Failed to update profile', 'error');
-            }
-        });
-
-        loadSettings();
-    </script>
 </body>
 </html>
