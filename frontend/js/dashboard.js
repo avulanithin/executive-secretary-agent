@@ -50,10 +50,21 @@ function setupNavigation() {
    Email actions
 ------------------------------ */
 function setupEmailActions() {
-    const syncBtn = document.getElementById("syncEmailsBtn");
-    if (syncBtn) {
-        syncBtn.addEventListener("click", syncEmails);
-    }
+    const syncButtons = [
+        document.getElementById("syncEmailsBtn"),
+        document.getElementById("syncEmailsQuickBtn")
+    ].filter(Boolean);
+
+    syncButtons.forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+            console.log("[emails] Sync button clicked", {
+                id: btn.id,
+                type: e.type,
+                ts: new Date().toISOString()
+            });
+            syncEmails();
+        });
+    });
 }
 
 /* -----------------------------
@@ -66,6 +77,8 @@ async function loadEmails() {
     try {
         const emails = await apiClient.get("/emails");
         updateEmailCount(emails.length);
+
+        console.log("[emails] Render count", { count: emails.length });
 
         if (!emails.length) {
             container.innerHTML =
@@ -90,19 +103,33 @@ async function loadEmails() {
    Sync Emails
 ------------------------------ */
 async function syncEmails() {
-    const btn = document.getElementById("syncEmailsBtn");
-    btn.disabled = true;
-    btn.textContent = "Syncing…";
+    const primaryBtn = document.getElementById("syncEmailsBtn");
+    const quickBtn = document.getElementById("syncEmailsQuickBtn");
+
+    // Disable both buttons during sync (if present)
+    [primaryBtn, quickBtn].filter(Boolean).forEach((b) => {
+        b.disabled = true;
+    });
+
+    if (primaryBtn) {
+        primaryBtn.textContent = "Syncing…";
+    }
 
     try {
-        await apiClient.post("/emails/sync");
+        // Explicitly hit POST /api/emails/sync via apiClient base URL
+        await apiClient.post("/emails/sync", {});
+        console.log("[emails] Sync success");
         await loadEmails();
     } catch (err) {
-        console.error(err);
+        console.error("[emails] Sync failed", err);
         alert("Failed to sync emails");
     } finally {
-        btn.disabled = false;
-        btn.textContent = "Sync Emails";
+        [primaryBtn, quickBtn].filter(Boolean).forEach((b) => {
+            b.disabled = false;
+        });
+        if (primaryBtn) {
+            primaryBtn.textContent = "Sync Emails";
+        }
     }
 }
 

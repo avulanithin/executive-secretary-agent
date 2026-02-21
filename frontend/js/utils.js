@@ -217,13 +217,14 @@ const Modal = {
 };
 
 // Local Storage Helper
-const Storage = {
+// NOTE: Do not use the name `Storage` (conflicts with the browser built-in interface)
+const AppStorage = {
     set(key, value) {
         try {
             localStorage.setItem(key, JSON.stringify(value));
             return true;
         } catch (error) {
-            console.error('Storage error:', error);
+            console.error('AppStorage error:', error);
             return false;
         }
     },
@@ -233,7 +234,7 @@ const Storage = {
             const item = localStorage.getItem(key);
             return item ? JSON.parse(item) : defaultValue;
         } catch (error) {
-            console.error('Storage error:', error);
+            console.error('AppStorage error:', error);
             return defaultValue;
         }
     },
@@ -243,7 +244,7 @@ const Storage = {
             localStorage.removeItem(key);
             return true;
         } catch (error) {
-            console.error('Storage error:', error);
+            console.error('AppStorage error:', error);
             return false;
         }
     },
@@ -253,7 +254,7 @@ const Storage = {
             localStorage.clear();
             return true;
         } catch (error) {
-            console.error('Storage error:', error);
+            console.error('AppStorage error:', error);
             return false;
         }
     }
@@ -337,7 +338,7 @@ window.Toast = Toast;
 window.DateFormatter = DateFormatter;
 window.Loading = Loading;
 window.Modal = Modal;
-window.Storage = Storage;
+window.AppStorage = AppStorage;
 window.debounce = debounce;
 window.Validators = Validators;
 window.StringUtils = StringUtils;

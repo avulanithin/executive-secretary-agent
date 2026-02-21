@@ -13,7 +13,10 @@ class AuthManager {
         // 🔒 SAFE logout binding
         const logoutBtn = document.getElementById('logoutBtn');
         if (logoutBtn) {
-            logoutBtn.addEventListener('click', () => this.logout());
+            logoutBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.logout();
+            });
         }
     }
 
@@ -47,38 +50,23 @@ class AuthManager {
         }
     }
 
-    logout() {
+    async logout() {
+        const apiBase = window.API_BASE || 'http://localhost:5000';
+
+        try {
+            // Call backend logout (if exists)
+            await fetch(`${apiBase}/api/auth/logout`, {
+                method: 'POST',
+                credentials: 'include'
+            });
+        } catch (err) {
+            console.warn('[auth] Backend logout failed, clearing client session');
+        }
+
         localStorage.clear();
-        window.location.href = '/login.html';
+        sessionStorage.clear();
+        window.location.href = 'login.html';
     }
 }
 
 window.authManager = new AuthManager();
-
-
-document.addEventListener("DOMContentLoaded", () => {
-    const logoutBtn = document.getElementById("logoutBtn");
-
-    if (logoutBtn) {
-        logoutBtn.addEventListener("click", async (e) => {
-            e.preventDefault();
-
-            try {
-                // Call backend logout (if exists)
-                await fetch(`${API_BASE_URL}/auth/logout`, {
-                    method: "POST",
-                    credentials: "include"
-                });
-            } catch (err) {
-                console.warn("Backend logout failed, clearing client session");
-            }
-
-            // Clear client-side auth
-            localStorage.clear();
-            sessionStorage.clear();
-
-            // Redirect to login page
-            window.location.href = "login.html";
-        });
-    }
-});

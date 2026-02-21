@@ -30,6 +30,9 @@ async function loadCalendar() {
     }
 }
 
+// Allow other scripts/pages to trigger calendar refresh when this file is loaded.
+window.loadCalendar = loadCalendar;
+
 function renderCalendarEvent(event) {
     return `
         <div class="calendar-event">

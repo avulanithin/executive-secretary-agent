@@ -85,5 +85,9 @@ def google_callback():
     user.last_login = datetime.utcnow()
     db.session.commit()
 
+    # 🔥 Establish authenticated session (session-based auth)
+    session["user_id"] = user.id
+    session.permanent = True
+
 
     return redirect(f"{FRONTEND_BASE_URL}/index.html?google_auth=success")

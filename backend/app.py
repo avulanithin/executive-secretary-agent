@@ -2,8 +2,9 @@ from flask import Flask
 import logging
 import os
 from dotenv import load_dotenv
+from flask_cors import CORS
 
-from backend.extensions import db, migrate, cors
+from backend.extensions import db, migrate
 from backend.api import register_blueprints
 from backend.config import Config
 
@@ -34,11 +35,11 @@ def create_app():
     db.init_app(app)
     migrate.init_app(app, db)
 
-    # 🔥 SINGLE, CORRECT CORS SETUP
-    cors.init_app(
+    # 🔥 SINGLE, CORRECT CORS SETUP (credentialed cookies)
+    CORS(
         app,
+        origins=["http://localhost:8000"],
         supports_credentials=True,
-        origins=["http://localhost:8000"]
     )
 
     # -----------------------------

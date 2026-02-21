@@ -53,7 +53,11 @@ def get_emails():
             email.category = "info"
             print("AI fallback used:", e)
 
-    db.session.commit()
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": "database error during email sync", "detail": str(e)}), 500
 
     emails = (
         Email.query
@@ -95,7 +99,11 @@ def sync_emails():
             fallback += 1
             print("AI fallback used:", e)
 
-    db.session.commit()
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": "database error during sync", "detail": str(e)}), 500
 
     return jsonify({
         "status": "synced",

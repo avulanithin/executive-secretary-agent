@@ -84,11 +84,31 @@ def fetch_gmail_emails(user):
     print(f"📥 Gmail API returned {len(messages)} messages")
 
     new_emails = []
+    seen_message_ids = set()
 
     for msg in messages:
         msg_id = msg["id"]
 
-        if Email.query.filter_by(gmail_message_id=msg_id).first():
+        # Skip duplicates within the same Gmail API page
+        if msg_id in seen_message_ids:
+            continue
+        seen_message_ids.add(msg_id)
+
+        # IMPORTANT: This function adds Email objects to the session.
+        # Any query can trigger an autoflush, which may INSERT pending rows
+        # before our duplicate check completes. Use no_autoflush here.
+        with db.session.no_autoflush:
+            existing = Email.query.filter_by(
+                user_id=user.id,
+                gmail_message_id=msg_id
+            ).first()
+
+            # Safety: gmail_message_id is UNIQUE globally in this schema.
+            # If it exists for any user, we must skip to avoid IntegrityError.
+            if not existing:
+                existing = Email.query.filter_by(gmail_message_id=msg_id).first()
+
+        if existing:
             continue
 
         data = service.users().messages().get(
@@ -134,7 +154,8 @@ def fetch_gmail_emails(user):
             subject=subject,
             body=body,
             received_at=datetime.utcfromtimestamp(internal_date / 1000),
-            processing_status="pending"
+            processing_status="pending",
+            decision_status="pending",
         )
 
         db.session.add(email)
@@ -142,7 +163,6 @@ def fetch_gmail_emails(user):
 
     # ✅ UPDATE LAST SYNC TIME
     user.last_gmail_sync = datetime.utcnow()
-    db.session.commit()
 
-    print(f"✅ Gmail sync complete | New emails added: {len(new_emails)}")
+    print(f"✅ Gmail sync fetch complete | New emails queued: {len(new_emails)}")
     return new_emails

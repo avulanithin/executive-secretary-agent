@@ -117,7 +117,9 @@ async function markTaskCompleted(taskId) {
     try {
         await apiClient.post(`/tasks/${taskId}/complete`);
         await loadTasks(); // refresh UI
-        loadCalendar(); // 🔥 THIS LINE IS IMPORTANT
+        if (typeof window.loadCalendar === "function") {
+            window.loadCalendar();
+        }
 
         
     } catch (err) {

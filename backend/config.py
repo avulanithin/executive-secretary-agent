@@ -20,3 +20,7 @@ class Config:
 
     SESSION_TYPE = "filesystem"
     PERMANENT_SESSION_LIFETIME = timedelta(hours=24)
+
+    # Session cookie settings (localhost, HTTP)
+    SESSION_COOKIE_SAMESITE = "Lax"
+    SESSION_COOKIE_SECURE = False
