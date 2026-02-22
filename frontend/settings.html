@@ -1,160 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Settings - Executive Secretary AI</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/main.css">
-    <link rel="stylesheet" href="css/dashboard.css">
-    <link rel="stylesheet" href="css/components.css">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Redirecting…</title>
+    <meta http-equiv="refresh" content="0; url=index.html#settings" />
+    <script>
+        window.location.replace('index.html#settings');
+    </script>
 </head>
 <body>
-    <div class="container">
-        <header class="header">
-            <div class="header-left">
-                <h1 class="logo">Executive Secretary AI</h1>
-            </div>
-            <div class="header-right">
-                <button class="btn-icon" id="notificationBtn">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-                    </svg>
-                    <span class="badge" id="notificationBadge">0</span>
-                </button>
-                <div class="user-menu">
-                    <div class="avatar">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="12" cy="7" r="4"></circle>
-                        </svg>
-                    </div>
-                    <span id="userName">Executive User</span>
-                </div>
-            </div>
-        </header>
-
-        <div class="main-content">
-            <aside class="sidebar">
-                <nav class="nav">
-                    <a href="index.html" class="nav-item">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="3" y="3" width="7" height="7"></rect>
-                            <rect x="14" y="3" width="7" height="7"></rect>
-                            <rect x="14" y="14" width="7" height="7"></rect>
-                            <rect x="3" y="14" width="7" height="7"></rect>
-                        </svg>
-                        <span>Overview</span>
-                    </a>
-                    <a href="index.html#emails" class="nav-item">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                            <polyline points="22,6 12,13 2,6"></polyline>
-                        </svg>
-                        <span>Emails</span>
-                    </a>
-                    <a href="approval.html" class="nav-item">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                        </svg>
-                        <span>Approvals</span>
-                    </a>
-                    <a href="settings.html" class="nav-item active">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="3"></circle>
-                            <path d="M12 1v6m0 6v6m8.66-15.66l-4.24 4.24M7.76 16.24l-4.24 4.24M23 12h-6m-6 0H1m20.66 8.66l-4.24-4.24M7.76 7.76L3.52 3.52"></path>
-                        </svg>
-                        <span>Settings</span>
-                    </a>
-                </nav>
-            </aside>
-
-            <main class="content">
-                <div class="section-header">
-                    <div>
-                        <h2>Settings</h2>
-                        <p class="subtitle">Manage your account and preferences</p>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-header">
-                        <h3>Account Information</h3>
-                    </div>
-                    <div class="card-body">
-                        <div class="setting-item">
-                            <div class="setting-info">
-                                <strong>Email Address</strong>
-                                <p>user@company.com</p>
-                            </div>
-                        </div>
-                        <div class="setting-item">
-                            <div class="setting-info">
-                                <strong>Account Type</strong>
-                                <p>Executive Premium</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-header">
-                        <h3>Integrations</h3>
-                    </div>
-                    <div class="card-body">
-                        <div class="setting-item">
-                            <div class="setting-info">
-                                <strong>Google Calendar</strong>
-                                <p>Sync your tasks with Google Calendar</p>
-                            </div>
-                            <button class="btn-secondary">Connect</button>
-                        </div>
-                        <div class="setting-item">
-                            <div class="setting-info">
-                                <strong>Gmail</strong>
-                                <p>Import emails for AI processing</p>
-                            </div>
-                            <button class="btn-secondary">Connect</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-header">
-                        <h3>Preferences</h3>
-                    </div>
-                    <div class="card-body">
-                        <div class="setting-item">
-                            <div class="setting-info">
-                                <strong>Email Notifications</strong>
-                                <p>Receive notifications for new approvals</p>
-                            </div>
-                            <button class="btn-secondary">Enable</button>
-                        </div>
-                        <div class="setting-item">
-                            <div class="setting-info">
-                                <strong>Auto-sync</strong>
-                                <p>Automatically sync emails every hour</p>
-                            </div>
-                            <button class="btn-secondary">Configure</button>
-                        </div>
-                    </div>
-                </div>
-            </main>
-        </div>
-    </div>
-
-    <div id="toastContainer" class="toast-container"></div>
-    <div id="loadingOverlay" class="loading-overlay hidden">
-        <div class="spinner"></div>
-    </div>
-
-    <script src="js/config.js"></script>
-    <script src="js/utils.js"></script>
-    <script src="js/auth.js"></script>
+    <noscript>
+        <a href="index.html#settings">Go to Settings</a>
+    </noscript>
 </body>
 </html>

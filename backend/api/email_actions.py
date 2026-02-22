@@ -14,28 +14,41 @@ actions_bp = Blueprint("email_actions", __name__)
 def approve_email(email_id):
     email = Email.query.get_or_404(email_id)
 
-    email.decision_status = "approved"
-    email.decision_at = datetime.utcnow()
+    try:
+        email.decision_status = "approved"
+        email.decision_at = datetime.utcnow()
 
-    task = Task(
-        email_id=email.id,
-        title=email.subject,
-        priority=email.urgency_level,
-        due_date=email.ai_deadline
-    )
+        task = Task(
+            email_id=email.id,
+            title=email.subject,
+            priority=email.urgency_level,
+            due_date=email.ai_deadline
+        )
 
-    db.session.add(task)
+        db.session.add(task)
 
-    if email.ai_deadline:
-        create_calendar_event(None, email)
+        if email.ai_deadline:
+            create_calendar_event(None, email)
 
-    db.session.commit()
-    return jsonify({"status": "approved"})
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"success": False, "error": f"Failed to approve email: {str(e)}"}), 500
+
+    return jsonify({"success": True, "status": "approved"})
 
 
 @actions_bp.route("/emails/<int:email_id>/reject", methods=["POST"])
 def reject_email(email_id):
     email = Email.query.get_or_404(email_id)
-    db.session.delete(email)
-    db.session.commit()
-    return jsonify({"status": "rejected"})
+
+    email.decision_status = "rejected"
+    email.decision_at = datetime.utcnow()
+
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"success": False, "error": f"Failed to reject email: {str(e)}"}), 500
+
+    return jsonify({"success": True, "status": "rejected"})

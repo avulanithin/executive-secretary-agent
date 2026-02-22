@@ -21,14 +21,14 @@ class AuthManager {
     }
 
     // -----------------------------
-    // Google OAuth Login
+    // OAuth Login
     // -----------------------------
-    async loginWithGoogle() {
+    async login() {
         try {
-            console.log('[auth] Requesting Google OAuth URL...');
+            console.log('[auth] Requesting OAuth URL...');
 
             const response = await fetch(
-                `${window.API_BASE}/api/auth/google/url`,
+                `${window.API_BASE}/api/auth/url`,
                 { credentials: 'include' }
             );
 
@@ -45,8 +45,8 @@ class AuthManager {
             window.location.href = data.url;
 
         } catch (err) {
-            console.error('[auth] Google login failed:', err);
-            alert('Google login failed. See console.');
+            console.error('[auth] Login failed:', err);
+            alert('Sign-in failed. Please try again.');
         }
     }
 

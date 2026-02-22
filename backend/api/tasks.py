@@ -62,47 +62,26 @@ def complete_task(task_id):
 # -----------------------------
 @tasks_bp.route("/calendar", methods=["GET"])
 def calendar_tasks():
-
     user_id = session.get("user_id")
     if not user_id:
         return jsonify([])
 
     tasks = (
         Task.query
-        .filter(Task.user_id == user_id))
-    tasks = Task.query.filter_by(user_id=user_id).all()
-
-        
-    
-
-    return jsonify([
-    {
-        "id": t.id,
-        "title": t.title,
-        "start": (t.suggested_deadline or t.created_at).isoformat(),
-        "status": t.status,
-        "priority": t.priority
-    }
-    for t in tasks
-])
-
-@tasks_bp.route("/calendar", methods=["GET"])
-def get_calendar_tasks():
-    user_id = session.get("user_id")
-
-    tasks = Task.query.filter(
-        Task.user_id == user_id,
-        Task.calendar_event_id.isnot(None)
-    ).all()
+        .filter_by(user_id=user_id)
+        .order_by(Task.suggested_deadline.asc(), Task.created_at.desc())
+        .all()
+    )
 
     return jsonify([
         {
+            "id": t.id,
             "title": t.title,
-            "start": (
-                t.suggested_deadline.isoformat()
-                if t.suggested_deadline
-                else t.created_at.isoformat()
-            )
+            "description": t.description or "",
+            "start": (t.suggested_deadline or t.created_at).isoformat(),
+            "status": t.status,
+            "priority": t.priority,
+            "calendar_synced": bool(t.calendar_event_id),
         }
         for t in tasks
     ])

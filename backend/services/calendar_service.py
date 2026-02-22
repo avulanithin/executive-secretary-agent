@@ -1,4 +1,5 @@
 from google.oauth2.credentials import Credentials
+from google.auth.transport.requests import Request as GoogleAuthRequest
 from googleapiclient.discovery import build
 from datetime import datetime, timedelta
 import os
@@ -27,7 +28,15 @@ def create_calendar_event(user, task):
         scopes=["https://www.googleapis.com/auth/calendar"],
     )
 
-    service = build("calendar", "v3", credentials=creds)
+    try:
+        creds.refresh(GoogleAuthRequest())
+    except Exception as e:
+        print("⚠️ Calendar token refresh failed:", e)
+        return None
+
+    service = build("calendar", "v3", credentials=creds, static_discovery=False)
+
+    calendar_id = getattr(user, "app_calendar_id", None) or "primary"
 
     event = {
         "summary": task.title,                 # ✅ AI summary / subject
@@ -41,8 +50,9 @@ def create_calendar_event(user, task):
     }
 
     created = service.events().insert(
-        calendarId="primary",
-        body=event
+        calendarId=calendar_id,
+        body=event,
+        sendUpdates="all",
     ).execute()
 
     # 🔥 STORE EVENT ID
@@ -64,12 +74,21 @@ def delete_calendar_event(user, task):
         scopes=["https://www.googleapis.com/auth/calendar"],
     )
 
-    service = build("calendar", "v3", credentials=creds)
+    try:
+        creds.refresh(GoogleAuthRequest())
+    except Exception as e:
+        print("⚠️ Calendar token refresh failed:", e)
+        return
+
+    service = build("calendar", "v3", credentials=creds, static_discovery=False)
+
+    calendar_id = getattr(user, "app_calendar_id", None) or "primary"
 
     try:
         service.events().delete(
-            calendarId="primary",
-            eventId=task.calendar_event_id
+            calendarId=calendar_id,
+            eventId=task.calendar_event_id,
+            sendUpdates="all",
         ).execute()
         print("🗑️ Calendar event deleted")
     except Exception as e:

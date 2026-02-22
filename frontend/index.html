@@ -1,15 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Executive Secretary AI - Dashboard</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/dashboard.css">
     <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.5/main.min.css">
+    <link rel="stylesheet" href="css/calendar.css">
 </head>
 <body>
     <div class="container">
@@ -35,7 +34,7 @@
                     </div>
                     <span id="userName">Executive User</span>
                     <div class="dropdown-menu" id="userDropdown">
-                        <a href="settings.html">Settings</a>
+                        <a href="#settings">Settings</a>
                         <a href="#" id="logoutBtn">Logout</a>
                     </div>
                 </div>
@@ -46,7 +45,7 @@
             <!-- Sidebar -->
             <aside class="sidebar">
                 <nav class="nav">
-                    <a href="#" class="nav-item active" data-section="overview">
+                    <a href="#overview" class="nav-item active">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <rect x="3" y="3" width="7" height="7"></rect>
                             <rect x="14" y="3" width="7" height="7"></rect>
@@ -55,7 +54,7 @@
                         </svg>
                         <span>Overview</span>
                     </a>
-                    <a href="#" class="nav-item" data-section="emails">
+                    <a href="#emails" class="nav-item">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
                             <polyline points="22,6 12,13 2,6"></polyline>
@@ -63,7 +62,7 @@
                         <span>Emails</span>
                         <span class="count" id="emailCount">0</span>
                     </a>
-                    <a href="approval.html" class="nav-item">
+                    <a href="#approvals" class="nav-item">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                             <polyline points="22 4 12 14.01 9 11.01"></polyline>
@@ -71,14 +70,15 @@
                         <span>Approvals</span>
                         <span class="count pending" id="approvalCount">0</span>
                     </a>
-                    <a href="#" class="nav-item" data-section="tasks">
+                    <a href="#tasks" class="nav-item">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M9 11l3 3L22 4"></path>
                             <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
                         </svg>
                         <span>Tasks</span>
+                        <span class="count" id="taskCount">0</span>
                     </a>
-                    <a href="calendar.html" class="nav-item">
+                    <a href="#calendar" class="nav-item">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
                             <line x1="16" y1="2" x2="16" y2="6"></line>
@@ -87,11 +87,19 @@
                         </svg>
                         <span>Calendar</span>
                     </a>
+                    <a href="#settings" class="nav-item">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="M12 1v6m0 6v6m8.66-15.66l-4.24 4.24M7.76 16.24l-4.24 4.24M23 12h-6m-6 0H1m20.66 8.66l-4.24-4.24M7.76 7.76L3.52 3.52"></path>
+                        </svg>
+                        <span>Settings</span>
+                    </a>
                 </nav>
             </aside>
 
             <!-- Content Area -->
             <main class="content">
+                <div class="content-inner">
                 <!-- Overview Section -->
                 <section id="overview" class="content-section active">
                     <div class="section-header">
@@ -173,7 +181,7 @@
                                     <span>Sync Emails</span>
                                 </button>
 
-                                <a href="approval.html" class="action-btn">
+                                <a href="#approvals" class="action-btn">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                                         <polyline points="22 4 12 14.01 9 11.01"></polyline>
@@ -181,7 +189,7 @@
                                     <span>Review Approvals</span>
                                 </a>
 
-                                <a href="tasks.html" class="action-btn">
+                                <a href="#tasks" class="action-btn">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <path d="M9 11l3 3L22 4"></path>
                                         <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
@@ -189,7 +197,7 @@
                                     <span>View Tasks</span>
                                 </a>
 
-                                <a href="calendar.html" class="action-btn">
+                                <a href="#calendar" class="action-btn">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
                                         <line x1="16" y1="2" x2="16" y2="6"></line>
@@ -231,11 +239,51 @@
                     </div>
                 </section>
 
+                <!-- Approvals Section -->
+                <section id="approvals" class="content-section">
+                    <div class="section-header">
+                        <div>
+                            <h2>Pending Approvals</h2>
+                            <p class="subtitle">Review AI-generated tasks before they're added to your workflow</p>
+                        </div>
+                        <div class="button-group">
+                            <button class="btn-secondary" id="approveAllBtn">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                Approve All
+                            </button>
+                            <button class="btn-secondary" id="refreshBtn">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="23 4 23 10 17 10"></polyline>
+                                    <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                                </svg>
+                                Refresh
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="approvalsList">
+                        <div id="emptyState" class="card">
+                            <div class="card-body">
+                                <div class="empty-state">
+                                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                    </svg>
+                                    <h3>All caught up!</h3>
+                                    <p>No pending approvals at the moment</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
                 <!-- Tasks Section -->
                 <section id="tasks" class="content-section">
                     <div class="section-header">
                         <div>
-                            <h2 style="color:#ffffff">My Tasks</h2>
+                            <h2>My Tasks</h2>
                             <p class="subtitle">Tasks extracted and approved from your emails</p>
                         </div>
                         <button class="btn-secondary" onclick="loadTasks()">
@@ -259,7 +307,246 @@
                     </div>
                 </section>
 
+                <!-- Calendar Section -->
+                <section id="calendar" class="content-section">
+                    <div class="section-header">
+                        <div>
+                            <h2>AI Calendar</h2>
+                            <p class="subtitle">Your scheduled tasks and events</p>
+                        </div>
+                        <button class="btn-secondary" id="syncCalendarBtn">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="23 4 23 10 17 10"></polyline>
+                                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                            </svg>
+                            Sync Calendar
+                        </button>
+                    </div>
+
+                    <div id="calendarView" class="calendar-view">
+                        <div class="empty-state">
+                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
+                            <h3>No events scheduled</h3>
+                            <p>Your calendar events will appear here</p>
+                        </div>
+                    </div>
+
+                    <div class="card cal-month-card">
+                        <div class="card-header">
+                            <h3>Month View</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="calendarMonthGrid" class="cal-month-grid"></div>
+                        </div>
+                    </div>
+
+
+                </section>
+
+                <!-- Settings Section -->
+                <section id="settings" class="content-section">
+                    <div class="section-header">
+                        <div>
+                            <h2>Settings</h2>
+                            <p class="subtitle">Manage your account and preferences</p>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Account Information</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <strong>Email Address</strong>
+                                    <p>user@company.com</p>
+                                </div>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <strong>Account Type</strong>
+                                    <p>Executive Premium</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card" style="margin-top: var(--space-6);">
+                        <div class="card-header">
+                            <h3>Integrations</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <strong>Calendar</strong>
+                                    <p>Sync your tasks with your calendar</p>
+                                </div>
+                                <button class="btn-secondary">Connect</button>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <strong>Email</strong>
+                                    <p>Import emails for AI processing</p>
+                                </div>
+                                <button class="btn-secondary">Connect</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card" style="margin-top: var(--space-6);">
+                        <div class="card-header">
+                            <h3>Preferences</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <strong>Email Notifications</strong>
+                                    <p>Receive notifications for new approvals</p>
+                                </div>
+                                <button class="btn-secondary">Enable</button>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <strong>Auto-sync</strong>
+                                    <p>Automatically sync emails every hour</p>
+                                </div>
+                                <button class="btn-secondary">Configure</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                </div>
+
             </main>
+        </div>
+    </div>
+
+    <!-- Approval Review Modal (two-column layout) -->
+    <div id="approvalModal" class="modal hidden">
+        <div class="modal-overlay"></div>
+        <div class="modal-content modal-review">
+
+            <!-- Fixed header -->
+            <div class="modal-header">
+                <div class="modal-header-text">
+                    <h3 id="modalSubjectTitle">Review Task</h3>
+                    <p class="modal-subtitle" id="modalSubjectSub"></p>
+                </div>
+                <button class="modal-close" id="closeModal" aria-label="Close">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Two-column body -->
+            <div class="modal-review-body">
+
+                <!-- LEFT 60% – Original Email -->
+                <div class="modal-review-left">
+                    <div class="review-col-label">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                            <polyline points="22,6 12,13 2,6"></polyline>
+                        </svg>
+                        Original Email
+                    </div>
+
+                    <div class="review-email-meta">
+                        <div class="review-meta-row">
+                            <span class="review-meta-label">From</span>
+                            <span class="review-meta-value" id="emailFrom"></span>
+                        </div>
+                        <div class="review-meta-row">
+                            <span class="review-meta-label">Date</span>
+                            <span class="review-meta-value review-date-value" id="emailDate"></span>
+                        </div>
+                        <div class="review-meta-row review-subject-row">
+                            <span class="review-meta-label">Subject</span>
+                            <span class="review-meta-value review-subject-value" id="emailSubject"></span>
+                        </div>
+                    </div>
+
+                    <div class="review-email-body-wrap">
+                        <pre class="review-email-body" id="emailBody"></pre>
+                    </div>
+                </div>
+
+                <!-- RIGHT 40% – AI Task Details -->
+                <div class="modal-review-right">
+                    <div class="review-col-label">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 11l3 3L22 4"></path>
+                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                        </svg>
+                        AI Generated Task
+                    </div>
+
+                    <div class="review-task-form">
+                        <div class="form-group">
+                            <label for="taskTitle">Task Title</label>
+                            <input type="text" id="taskTitle" class="input" placeholder="Task title">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="taskDescription">Description</label>
+                            <textarea id="taskDescription" class="textarea" rows="3" placeholder="Task description"></textarea>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="taskPriority">Priority</label>
+                                <select id="taskPriority" class="select">
+                                    <option value="high">High</option>
+                                    <option value="medium" selected>Medium</option>
+                                    <option value="low">Low</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="taskDeadline">Deadline</label>
+                                <input type="datetime-local" id="taskDeadline" class="input">
+                            </div>
+                        </div>
+
+                        <div class="ai-confidence">
+                            <div class="confidence-bar">
+                                <span>AI Confidence</span>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="confidenceBar"></div>
+                                </div>
+                                <span id="confidenceValue">0%</span>
+                            </div>
+                            <p class="ai-reasoning" id="aiReasoning"></p>
+                        </div>
+                    </div>
+
+                    <!-- Sticky action footer inside right column -->
+                    <div class="review-actions">
+                        <button class="btn-danger" id="rejectBtn">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                            Reject
+                        </button>
+                        <button class="btn-primary" id="approveBtn">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            Approve & Add to Tasks
+                        </button>
+                    </div>
+                </div>
+
+            </div>
         </div>
     </div>
 
@@ -273,8 +560,12 @@
     <script src="js/api_client.js"></script>
     <script src="js/storage.js"></script>
     <script src="js/auth.js"></script>
-    <script src="js/tasks.js"></script>
     <script src="js/dashboard.js"></script>
-    <script src="js/app.js"></script>
+    <script src="js/approval.js"></script>
+    <script src="js/tasks.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.5/main.min.js"></script>
+    <script src="js/calendar.js"></script>
+    <script src="js/state.js"></script>
+    <script src="js/router.js"></script>
 </body>
 </html>

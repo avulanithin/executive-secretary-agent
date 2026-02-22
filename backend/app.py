@@ -22,7 +22,7 @@ def create_app():
     app.config.from_object(Config)
 
     if not os.getenv("GROQ_API_KEY"):
-        raise RuntimeError("❌ GROQ_API_KEY is not loaded into Flask app")
+        logger.warning("GROQ_API_KEY is not set; AI features may be unavailable")
 
     logger.debug(
         "Config loaded | DB URI=%s",

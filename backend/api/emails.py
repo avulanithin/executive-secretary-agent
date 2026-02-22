@@ -61,7 +61,7 @@ def get_emails():
 
     emails = (
         Email.query
-        .filter_by(user_id=user.id)
+        .filter_by(user_id=user.id, decision_status="pending")
         .order_by(Email.received_at.desc())
         .all()
     )
@@ -154,12 +154,12 @@ import json
 def approve_email(email_id):
     user_id = session.get("user_id")
     if not user_id:
-        return jsonify({"error": "unauthorized"}), 401
+        return jsonify({"success": False, "error": "unauthorized"}), 401
 
     email = Email.query.get_or_404(email_id)
 
     if email.decision_status == "approved":
-        return jsonify({"status": "already approved"})
+        return jsonify({"success": True, "status": "already approved"})
 
     # Create approval record
     approval = Approval(
@@ -175,12 +175,17 @@ def approve_email(email_id):
         })
     )
 
-    email.decision_status = "pending"
+    email.decision_status = "approved"
+    email.decision_at = datetime.utcnow()
 
     db.session.add(approval)
-    db.session.commit()
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"success": False, "error": f"Failed to approve email: {str(e)}"}), 500
 
-    return jsonify({"status": "sent_to_approvals"})
+    return jsonify({"success": True, "status": "sent_to_approvals"})
 
 
 
@@ -191,10 +196,16 @@ def approve_email(email_id):
 def reject_email(email_id):
     user_id = session.get("user_id")
     if not user_id:
-        return jsonify({"error": "unauthorized"}), 401
+        return jsonify({"success": False, "error": "unauthorized"}), 401
 
     email = Email.query.get_or_404(email_id)
-    db.session.delete(email)
-    db.session.commit()
+    email.decision_status = "rejected"
+    email.decision_at = datetime.utcnow()
 
-    return jsonify({"status": "deleted"})
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"success": False, "error": f"Failed to reject email: {str(e)}"}), 500
+
+    return jsonify({"success": True, "status": "rejected"})

@@ -1,8 +1,4 @@
-document.addEventListener("DOMContentLoaded", () => {
-    setupNavigation();
-    setupEmailActions();
-    loadEmails();
-});
+let _emailActionsBound = false;
 
 /* -----------------------------
    Time helpers (UTC → IST)
@@ -20,36 +16,10 @@ function formatToIST(utcString) {
 }
 
 /* -----------------------------
-   Navigation
------------------------------- */
-function setupNavigation() {
-    document.querySelectorAll(".nav-item").forEach(item => {
-        item.addEventListener("click", e => {
-            const section = item.dataset.section;
-            if (!section) return;
-
-            e.preventDefault();
-
-            document.querySelectorAll(".nav-item")
-                .forEach(i => i.classList.remove("active"));
-            item.classList.add("active");
-
-            document.querySelectorAll(".content-section")
-                .forEach(sec => sec.classList.remove("active"));
-
-            const target = document.getElementById(section);
-            if (target) target.classList.add("active");
-
-            if (section === "emails") loadEmails();
-            if (section === "tasks") loadTasks();
-        });
-    });
-}
-
-/* -----------------------------
    Email actions
 ------------------------------ */
 function setupEmailActions() {
+    if (_emailActionsBound) return;
     const syncButtons = [
         document.getElementById("syncEmailsBtn"),
         document.getElementById("syncEmailsQuickBtn")
@@ -65,6 +35,8 @@ function setupEmailActions() {
             syncEmails();
         });
     });
+
+    _emailActionsBound = true;
 }
 
 /* -----------------------------
@@ -76,7 +48,7 @@ async function loadEmails() {
 
     try {
         const emails = await apiClient.get("/emails");
-        updateEmailCount(emails.length);
+        window.State?.setCounts?.({ emails: Array.isArray(emails) ? emails.length : 0 });
 
         console.log("[emails] Render count", { count: emails.length });
 
@@ -199,6 +171,7 @@ function renderEmail(email) {
 async function approveEmail(emailId) {
     await apiClient.post(`/emails/${emailId}/approve`);
     Toast.success("Sent to approvals");
+    await window.State?.refreshCounts?.({ approvals: true, tasks: false, emails: false });
     loadEmails();
 }
 
@@ -212,27 +185,39 @@ async function rejectEmail(emailId) {
     }
 }
 
-function updateEmailCount(count) {
-    const sidebarBadge = document.getElementById("emailCount");
-    if (sidebarBadge) sidebarBadge.textContent = count;
+// Router integration
+window.Sections = window.Sections || {};
+window.Sections.overview = window.Sections.overview || {
+    enter: async () => {
+        // Keep overview stats in sync with State
+        window.State?.renderCounts?.();
+    }
+};
 
-    const statCard = document.getElementById("statEmails");
-    if (statCard) statCard.textContent = count;
-}
+window.Sections.emails = window.Sections.emails || {
+    enter: async () => {
+        setupEmailActions();
+        await loadEmails();
+    }
+};
 
-document.addEventListener("DOMContentLoaded", () => {
+function bindUserMenuDropdown() {
     const userMenu = document.querySelector(".user-menu");
     const dropdown = document.getElementById("userDropdown");
+    if (!userMenu || !dropdown) return;
 
-    if (userMenu && dropdown) {
-        userMenu.addEventListener("click", () => {
-            dropdown.classList.toggle("show");
-        });
+    if (userMenu.dataset.bound === "true") return;
+    userMenu.dataset.bound = "true";
 
-        document.addEventListener("click", (e) => {
-            if (!userMenu.contains(e.target)) {
-                dropdown.classList.remove("show");
-            }
-        });
-    }
-});
+    userMenu.addEventListener("click", () => {
+        dropdown.classList.toggle("show");
+    });
+
+    document.addEventListener("click", (e) => {
+        if (!userMenu.contains(e.target)) {
+            dropdown.classList.remove("show");
+        }
+    });
+}
+
+window.bindUserMenuDropdown = bindUserMenuDropdown;

@@ -21,6 +21,9 @@ class User(db.Model):
     gmail_token = db.Column(db.Text, nullable=True)
     calendar_token = db.Column(db.Text, nullable=True)
 
+    # Dedicated application calendar (Google Calendar ID)
+    app_calendar_id = db.Column(db.String(255), nullable=True)
+
     # Preferences
     preferences = db.Column(db.Text, nullable=True)
 
